@@ -117,18 +117,24 @@ void MainWindow::drawWidget(QWidget *wdg, QImage *img)
     painter.setPen(QColor(0,0,255));
 
     QPoint *pp = &(*(v->begin()));
-    int x = pp->x(), y = pp->y();
-    painter.drawRect(pp->x()-2,pp->y()-2, 4, 4);
+    //int x = pp->x(), y = pp->y();
+    //painter.drawRect(pp->x()-2,pp->y()-2, 4, 4);
+    //painter.drawText(pp->x()-4,pp->y()-4, QString("1"));
 
-    for(auto i=(++v->begin()); i!=v->end(); ++i)
+    uint k = 1;//, x = pp->x(), y = pp->y();
+
+    for(auto i=v->begin(); i!=v->end(); ++i)
     {
         QPoint *np = &(*(i));
         painter.drawRect(np->x()-2,np->y()-2, 4, 4);
         painter.drawLine(pp->x(),pp->y(),np->x(),np->y());
+        painter.drawText(np->x()-4,np->y()-4, QString::number(k));
 
-        x = np->x(), y = np->y();
+        //x = np->x(), y = np->y();
 
         pp = np;
+
+        ++k;
     }
 
     if(v->size() == 4)

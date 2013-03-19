@@ -20,6 +20,8 @@ public:
     void generateFrom3Points(std::tuple<QPoint, QPoint, QPoint> in_points, std::tuple<QPoint, QPoint, QPoint> out_points);
 
     void drop();
+
+    static bool pointInTriangle(const QPoint &point, std::tuple<QPoint, QPoint, QPoint> triangle);
 private:
     double a, b, c, d, m, l;
 };
