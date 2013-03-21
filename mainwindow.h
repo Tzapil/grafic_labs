@@ -10,6 +10,7 @@
 #include <QFileDialog>
 
 #include <QLayout>
+#include <QFormLayout>
 
 #include <QPainter>
 #include <QImage>
@@ -25,6 +26,7 @@
 #include <vector>
 
 #include "mywidget.h"
+#include "mytransform.h"
 
 class MainWindow : public QMainWindow
 {
@@ -43,14 +45,16 @@ protected:
     void updateImgs(QImage *iii);
 private slots:
     void load_img ();
+    void transform_img();
 private:
     QImage *image,
            *out_image;
-    QPushButton *load_btn;
+    QPushButton *load_btn,
+                *transform_btn;
     MyWidget *in_img,
             *out_img;
 
-    QLayout *main_l;
+    QLayout *main_l,*btn_l;
 };
 
 #endif // MAINWINDOW_H

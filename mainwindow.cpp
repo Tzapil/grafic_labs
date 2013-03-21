@@ -18,10 +18,18 @@ MainWindow::MainWindow(QWidget *parent) :
     load_btn->setFixedWidth(80);
     QObject::connect(load_btn,SIGNAL(clicked()),this,SLOT(load_img()));
 
-    main_l = new QHBoxLayout(this);
+    transform_btn = new QPushButton(tr("Transform"), this);
+    transform_btn->setFixedWidth(80);
+    QObject::connect(transform_btn,SIGNAL(clicked()),this,SLOT(transform_img()));
+
+    btn_l = new QVBoxLayout();
+    main_l = new QHBoxLayout();
+
     main_l->addWidget(in_img);
     main_l->addWidget(out_img);
-    main_l->addWidget(load_btn);
+    btn_l->addWidget(load_btn);
+    btn_l->addWidget(transform_btn);
+    main_l->addItem(btn_l);
     main_l->setGeometry(QRect(0,0,this->width(),this->height()));
 }
 
@@ -40,6 +48,7 @@ MainWindow::~MainWindow()
     }
 
     delete load_btn;
+    delete transform_btn;
 
     delete in_img;
     delete out_img;
@@ -144,6 +153,42 @@ void MainWindow::drawWidget(QWidget *wdg, QImage *img)
     }
 
     painter.end();
+}
+
+void MainWindow::transform_img()
+{
+    if(!image || in_img->getClickNum()<4 || out_img->getClickNum()<4)
+        return;
+
+    QImage *new_img = new QImage(in_img->width(),in_img->height(),QImage::Format_RGB32);
+
+
+    auto v1 = in_img->getVector(), v2 = out_img->getVector();
+
+    auto ta1 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(1).x(),v1->at(1).y()), QPoint(v1->at(2).x(),v1->at(2).y())),
+         ta2 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(2).x(),v1->at(2).y()), QPoint(v1->at(3).x(),v1->at(3).y())),
+         tb1 = std::make_tuple(QPoint(v2->at(0).x(),v2->at(0).y()), QPoint(v2->at(1).x(),v2->at(1).y()), QPoint(v2->at(2).x(),v2->at(2).y())),
+         tb2 = std::make_tuple(QPoint(v2->at(0).x(),v2->at(0).y()), QPoint(v2->at(2).x(),v2->at(2).y()), QPoint(v2->at(3).x(),v2->at(3).y()));
+    //std::set<0>(ta1, v1->at(0)); std::set<1>(ta1, v1->at(1)); std::set<2>(ta1, v1->at(2));
+
+    MyTransform tr1, tr2;
+
+    tr1.generateFrom3Points(ta1, tb1);
+    tr2.generateFrom3Points(ta2, tb2);
+
+    for(int y=0;y<new_img->height();++y)
+        for(int x=0;x<new_img->width();++x)
+        {
+            QPoint pp(x, y);
+            if(MyTransform::pointInTriangle(pp,ta1))
+            {
+                QPoint rp = tr1.transformPoint(pp);
+                int rx = rp.x(), ry = rp.y();
+                QRgb color = image->pixel(x, y);
+                new_img->setPixel(rx, ry, color);
+            }
+        }
+    updateImgs(new_img);
 }
 
 void MainWindow::load_img ()

@@ -10,6 +10,8 @@ class MyTransform
 public:
     MyTransform();
 
+    void reverse();
+
     QPoint transformPoint(const QPoint &point);
 
     void translate(double dx, double dy);
