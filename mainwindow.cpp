@@ -22,6 +22,10 @@ MainWindow::MainWindow(QWidget *parent) :
     transform_btn->setFixedWidth(80);
     QObject::connect(transform_btn,SIGNAL(clicked()),this,SLOT(transform_img()));
 
+    prob_btn = new QPushButton(tr("Check"), this);
+    prob_btn->setFixedWidth(80);
+    QObject::connect(prob_btn,SIGNAL(clicked()),this,SLOT(transform_prob()));
+
     btn_l = new QVBoxLayout();
     main_l = new QHBoxLayout();
 
@@ -29,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_l->addWidget(out_img);
     btn_l->addWidget(load_btn);
     btn_l->addWidget(transform_btn);
+    btn_l->addWidget(prob_btn);
     main_l->addItem(btn_l);
     main_l->setGeometry(QRect(0,0,this->width(),this->height()));
 }
@@ -49,6 +54,7 @@ MainWindow::~MainWindow()
 
     delete load_btn;
     delete transform_btn;
+    delete prob_btn;
 
     delete in_img;
     delete out_img;
@@ -160,8 +166,10 @@ void MainWindow::transform_img()
     if(!image || in_img->getClickNum()<4 || out_img->getClickNum()<4)
         return;
 
-    QImage *new_img = new QImage(in_img->width(),in_img->height(),QImage::Format_RGB32);
+    QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
 
+    double mw = in_img->width()/image->width(),
+           mh = in_img->height()/image->height();
 
     auto v1 = in_img->getVector(), v2 = out_img->getVector();
 
@@ -176,17 +184,60 @@ void MainWindow::transform_img()
     tr1.generateFrom3Points(ta1, tb1);
     tr2.generateFrom3Points(ta2, tb2);
 
-    for(int y=0;y<new_img->height();++y)
-        for(int x=0;x<new_img->width();++x)
+    uint w = new_img->width(),
+         h = new_img->height();
+
+    for(uint y=0;y<h;++y)
+        for(uint x=0;x<w;++x)
         {
+            QRgb color;
             QPoint pp(x, y);
-            if(MyTransform::pointInTriangle(pp,ta1))
+            if(MyTransform::pointInTriangle(pp,tb1))
             {
                 QPoint rp = tr1.transformPoint(pp);
                 int rx = rp.x(), ry = rp.y();
-                QRgb color = image->pixel(x, y);
-                new_img->setPixel(rx, ry, color);
+                if(rx<0 || ry<0 || rx>=w || ry>=h)
+                    color = qRgb(255,255,255);
+                else
+                    color = image->pixel(rx, ry);
+
             }
+            else
+                color = qRgb(255,255,255);
+            new_img->setPixel(x, y, color);
+        }
+    updateImgs(new_img);
+}
+
+void MainWindow::transform_prob()
+{
+    if(!image)
+        return;
+
+    QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
+
+    MyTransform tr1;
+    tr1.rotate(30);
+    tr1.translate(300,50);
+    //tr1.scale(0.5);
+
+    tr1.reverse();
+
+    uint w = new_img->width(),
+         h = new_img->height();
+
+    for(uint y=0;y<h;++y)
+        for(uint x=0;x<w;++x)
+        {
+                QPoint pp(x, y);
+                QPoint rp = tr1.transformPoint(pp);
+                int rx = rp.x(), ry = rp.y();
+                QRgb color;
+                if(rx<0 || ry<0 || rx>=w || ry>=h)
+                    color = qRgb(255,255,255);
+                else
+                    color = image->pixel(rx, ry);
+                new_img->setPixel(x, y, color);
         }
     updateImgs(new_img);
 }

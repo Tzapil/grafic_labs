@@ -69,7 +69,7 @@ void MyTransform::generateFrom3Points(std::tuple<QPoint, QPoint, QPoint> in_poin
         dxy12 = x_1*y_2-x_2*y_1, dxy20 = x_2*y_0-x_0*y_2, dxy21 = x_2*y_1-x_1*y_2;
 
 
-    double det = x_0*dy12-y_0*(x_1-x_2)+dxy12;
+    double det = 1/(x_0*dy12-y_0*(x_1-x_2)+dxy12);
 
     a = (dy12*ox_0 + dy20*ox_1 + dy01*ox_2)*det;
     b = (dy12*oy_0 + dy20*oy_1 + dy01*oy_2)*det;
@@ -98,7 +98,7 @@ bool MyTransform::pointInTriangle(const QPoint &point, std::tuple<QPoint, QPoint
 
 void MyTransform::drop()
 {
-   a = 1; b = 1; c = 1; d = 1; l = 0; m = 0;
+   a = 1; b = 0; c = 0; d = 1; l = 0; m = 0;
 }
 
 void MyTransform::reverse()
@@ -108,5 +108,5 @@ void MyTransform::reverse()
 
     a = _d*det; b = -_c*det;
     c = -_b*det; d = _a*det;
-    l = det*(_b*_m-_l*_d); m = det*(_l*_c-_a*_m);
+    l = det*(_b*_m-_l*_d); m = -det*(_l*_c-_a*_m);
 }

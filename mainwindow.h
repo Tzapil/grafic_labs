@@ -46,11 +46,13 @@ protected:
 private slots:
     void load_img ();
     void transform_img();
+    void transform_prob();
 private:
     QImage *image,
            *out_image;
     QPushButton *load_btn,
-                *transform_btn;
+                *transform_btn,
+                *prob_btn;
     MyWidget *in_img,
             *out_img;
 
