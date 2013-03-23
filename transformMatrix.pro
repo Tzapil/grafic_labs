@@ -9,6 +9,7 @@ QT       += core gui
 TARGET = transformMatrix
 TEMPLATE = app
 
+CONFIG += debug
 
 SOURCES += main.cpp\
         mainwindow.cpp \

@@ -1,5 +1,8 @@
 *.user
 *~
 *.user.*
+*.o
+*.jpg
+moc_*
 debug/
 release/

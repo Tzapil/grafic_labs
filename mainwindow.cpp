@@ -73,6 +73,8 @@ bool MainWindow::eventFilter( QObject * obj, QEvent * event )
     {
         QMouseEvent *e = dynamic_cast<QMouseEvent*>(event);
         int x = e->x(), y = e->y();
+        double hw = in_img->width()/image->width(),
+               hh = in_img->height()/image->height();
 
         MyWidget * w = qobject_cast<MyWidget*>(obj);
 
@@ -88,7 +90,7 @@ bool MainWindow::eventFilter( QObject * obj, QEvent * event )
             w->zeroClickNum();
         }
 
-        vector->push_back(QPoint(x, y));
+        vector->push_back(QPoint(x*hw, y*hh));
         w->incClickNum();
 
         w->update();
@@ -108,6 +110,14 @@ bool MainWindow::eventFilter( QObject * obj, QEvent * event )
 void MainWindow::drawWidget(QWidget *wdg, QImage *img)
 {
     QPainter painter;
+
+    double hw = 1, hh = 1;
+
+    if(image)
+    {
+        hw = image->width()/in_img->width();
+        hh = image->height()/in_img->height();
+    }
 
     painter.begin(wdg);
 
@@ -132,22 +142,20 @@ void MainWindow::drawWidget(QWidget *wdg, QImage *img)
     painter.setPen(QColor(0,0,255));
 
     QPoint *pp = &(*(v->begin()));
-    //int x = pp->x(), y = pp->y();
-    //painter.drawRect(pp->x()-2,pp->y()-2, 4, 4);
-    //painter.drawText(pp->x()-4,pp->y()-4, QString("1"));
-
-    uint k = 1;//, x = pp->x(), y = pp->y();
+    uint k = 1, xx = pp->x()*hw, yy = pp->y()*hh;;
 
     for(auto i=v->begin(); i!=v->end(); ++i)
     {
         QPoint *np = &(*(i));
-        painter.drawRect(np->x()-2,np->y()-2, 4, 4);
-        painter.drawLine(pp->x(),pp->y(),np->x(),np->y());
-        painter.drawText(np->x()-4,np->y()-4, QString::number(k));
+        uint x = np->x()*hw, y = np->y()*hh;
 
-        //x = np->x(), y = np->y();
+        painter.drawRect(x-2,y-2, 4, 4);
+        painter.drawLine(xx,yy,x,y);
+        painter.drawText(x-4,y-4, QString::number(k));
 
         pp = np;
+
+        xx = pp->x()*hw; yy = pp->y()*hh;
 
         ++k;
     }
@@ -172,6 +180,12 @@ void MainWindow::transform_img()
            mh = in_img->height()/image->height();
 
     auto v1 = in_img->getVector(), v2 = out_img->getVector();
+
+    //uint x_0 = v1->at(0).x(), x_1 = v1->at(1).x(), x_2 = v1->at(2).x(), x_3 = v1->at(3).x(),
+    //    y_0 = v1->at(0).y(), y_1 = v1->at(1).y(), x_2 = v1->at(2).y(), y_3 = v1->at(3).y();
+
+    //uint x_0 = v1->at(0).x(), x_1 = v1->at(1).x(), x_2 = v1->at(2).x(), x_3 = v1->at(3).x(),
+    //    y_0 = v1->at(0).y(), y_1 = v1->at(1).y(), x_2 = v1->at(2).y(), y_3 = v1->at(3).y();
 
     auto ta1 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(1).x(),v1->at(1).y()), QPoint(v1->at(2).x(),v1->at(2).y())),
          ta2 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(2).x(),v1->at(2).y()), QPoint(v1->at(3).x(),v1->at(3).y())),
