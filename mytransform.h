@@ -2,8 +2,10 @@
 #define MYTRANSFORM_H
 
 #include <QPoint>
+#include <QImage>
 #include <cmath>
 #include <tuple>
+#include <vector>
 
 class MyTransform
 {
@@ -13,6 +15,7 @@ public:
     void reverse();
 
     QPoint transformPoint(const QPoint &point);
+    QImage* transformImage(QImage &in_img);
 
     void translate(double dx, double dy);
     void scale(double sx = 1, double sy = 1);

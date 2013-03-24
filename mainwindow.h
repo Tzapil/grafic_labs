@@ -5,7 +5,9 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QLabel>
+#include <QSpinBox>
 #include <QPushButton>
+#include <QDesktopWidget>
 
 #include <QFileDialog>
 
@@ -28,6 +30,10 @@
 #include "mywidget.h"
 #include "mytransform.h"
 
+#include "qapplication.h"
+
+#define BTN_SIZE 150
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -46,17 +52,28 @@ protected:
 private slots:
     void load_img ();
     void transform_img();
+    void transform_img_back();
     void transform_prob();
 private:
     QImage *image,
            *out_image;
     QPushButton *load_btn,
                 *transform_btn,
+                *transform_back_btn,
                 *prob_btn;
     MyWidget *in_img,
             *out_img;
 
     QLayout *main_l,*btn_l;
+
+    QLabel *l_angle,
+           *l_translate_x,
+           *l_translate_y;
+    QSpinBox *angle,
+             *translate_x,
+             *translate_y;
+
+    void createTransformMenu();
 };
 
 #endif // MAINWINDOW_H
