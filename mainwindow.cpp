@@ -5,7 +5,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     out_image = 0;
     image = 0;
-    int btn_size = 150;
 
     this->setFixedSize(BTN_SIZE,300);
 
@@ -275,6 +274,14 @@ void MainWindow::transform_img()
         return;
 
     QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
+    QPainter painter;
+    painter.begin(new_img);
+    QBrush brush(QColor(0,0,0));
+        QPen pen(QColor(0,0,0));
+        painter.setBrush(brush);
+        painter.setPen(pen);
+        painter.drawRect(QRect(0,0,image->width()-1,image->height()-1));
+    painter.end();
 
     auto v1 = in_img->getVector(), v2 = out_img->getVector();
 
