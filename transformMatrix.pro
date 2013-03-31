@@ -9,15 +9,16 @@ QT       += core gui
 TARGET = transformMatrix
 TEMPLATE = app
 
-CONFIG += debug
 
 SOURCES += main.cpp\
         mainwindow.cpp \
     mywidget.cpp \
-    mytransform.cpp
+    mytransform.cpp \
+    myframe.cpp
 
 HEADERS  += mainwindow.h \
     mywidget.h \
-    mytransform.h
+    mytransform.h \
+    myframe.h
 
 QMAKE_CXXFLAGS += -std=gnu++0x
