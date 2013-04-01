@@ -40,7 +40,6 @@ private:
 
     uint m_old_posx, m_old_posy;
 protected:
-    void resizeEvent ( QResizeEvent * event );
     bool event ( QEvent * event );
 };
 

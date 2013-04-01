@@ -6,6 +6,9 @@ MyWidget::MyWidget(QWidget *parent) :
     frames.clear();
 
     image = 0;
+
+    m_old_posx = 0;
+    m_old_posy = 0;
 }
 
 MyWidget::~MyWidget()
@@ -14,27 +17,36 @@ MyWidget::~MyWidget()
         delete image;
 }
 
-void MyWidget::resizeEvent ( QResizeEvent * event )
+/*void MyWidget::resizeEvent ( QResizeEvent * event )
 {
     const QSize &old_size = event->oldSize(),
                 &new_size = event->size();
     int dx = new_size.width()  - old_size.width(),
         dy = new_size.height() - old_size.height();
     std::for_each(frames.begin(), frames.end(), [dx, dy](MyFrame &frame){frame.translate(dx ,dy);});
-}
+
+}*/
 
 void MyWidget::addFrame()
 {
-    frames.push_back(MyFrame(QRect(50,50,50,50)));
+    MyFrame frame(QRect(50,50,50,50));
+    frame.setHiBounds(this->width(), this->height());
+    frames.push_back(frame);
 }
 
 bool MyWidget::event ( QEvent * event )
 {
+    if(event->type() == QEvent::Resize)
+    {
+        std::for_each(frames.begin(), frames.end(), [this](MyFrame &frame){frame.setHiBounds(this->width(), this->height());});
+        return true;
+    }
     if(event->type() == QEvent::Paint)
     {
         QPainter painter;
 
         painter.begin(this);
+
 
         if(image)
             painter.drawImage(QRect(0,0,this->width(),this->height()), *image);
@@ -46,6 +58,8 @@ bool MyWidget::event ( QEvent * event )
         }
 
         std::for_each(frames.begin(), frames.end(), [&painter](MyFrame &frame){frame.paint(painter);});
+
+        painter.drawText(QRect(0,0,70,50),QString::number(m_old_posx)+QString(' ')+QString::number(m_old_posy));
 
         painter.end();
 
@@ -86,7 +100,16 @@ bool MyWidget::event ( QEvent * event )
     if(event->type() == QEvent::MouseMove)
     {
         QMouseEvent *e = dynamic_cast<QMouseEvent*>(event);
-        uint x = e->x(), y = e->y();
+        int x = e->x(), y = e->y();
+
+        if(x<0)
+            x = 0;
+        if(y<0)
+            y = 0;
+        if(x>=this->width())
+            x = this->width()-1;
+        if(y>=this->height())
+            y = this->height()-1;
 
         int dx = (int)x-m_old_posx, dy = (int)y-m_old_posy;
 

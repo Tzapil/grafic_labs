@@ -281,8 +281,8 @@ void MainWindow::load_img ()
     {
         image = QImage(name);
         QRect desk_r = qApp->desktop()->screenGeometry();
-        desk_r.setWidth(desk_r.width()-BTN_SIZE-100);
-        desk_r.setHeight(desk_r.height()-200);
+        desk_r.setWidth(desk_r.width()-BTN_SIZE-50);
+        desk_r.setHeight(desk_r.height()-50);
         if(desk_r.width()<image.width()*2 || desk_r.height()<image.height())
         {
             QImage temp;
@@ -295,11 +295,7 @@ void MainWindow::load_img ()
         }
 
         this->setFixedSize(image.width()*2+BTN_SIZE,image.height());
-        desk_r = qApp->desktop()->screenGeometry();
-        QPoint npos = this->pos();
 
-        this->move(npos);
-        //in_img->getVector()->clear(); out_img->getVector()->clear();
         in_img->setImage(image);
     }
 }
