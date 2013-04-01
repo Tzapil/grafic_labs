@@ -3,31 +3,45 @@
 MyWidget::MyWidget(QWidget *parent) :
     QWidget(parent)
 {
-    click_num = 0;
-    points.clear();
+    frames.clear();
 }
 
-std::vector<QPoint>* MyWidget::getVector()
+std::vector<MyFrame>* MyWidget::getVector()
 {
-    return &points;
+    return &frames;
 }
 
-uint MyWidget::getClickNum()
+void MyWidget::resizeEvent ( QResizeEvent * event )
 {
-    return click_num;
+    QSize size(event->oldSize());
+    int dx = this->width()  - size.width(),
+        dy = this->height() - size.height();
+    std::for_each(frames.begin(), frames.end(), [](MyFrame &frame){frame.translate(dx ,dy);});
 }
 
-void MyWidget::setClickNum(uint k)
+bool MyWidget::event ( QEvent * event )
 {
-    click_num = k;
-}
+    if(event->type() == QEvent::MouseButtonPress)
+    {
+        QMouseEvent *e = dynamic_cast<QMouseEvent*>(event);
+        int x = e->x(), y = e->y();
 
-void MyWidget::incClickNum()
-{
-    click_num++;
-}
+        if(frames.size() == 0)
+            return true;
+        for(auto it = frames.rbegin(); it != frames.rend(); it++)
+        {
+            if((*it).captured(x ,y))
+                break;
+        }
+        this->update();
+    }
+    if(event->type() == QEvent::MouseButtonRelease)
+    {
+        if(frames.size() == 0)
+            return true;
+        std::for_each(frames.rbegin(), frames.rend(), [](MyFrame &frame){frame.release();});
+        this->update();
+    }
 
-void MyWidget::zeroClickNum()
-{
-    click_num = 0;
+    return true;
 }

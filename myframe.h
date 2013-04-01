@@ -5,11 +5,15 @@
 
 #include <QRect>
 #include <QPoint>
+#include <QPainter>
 
 #include <tuple>
 #include <utility>
+#include <functional>
 #include <array>
 #include <stdexcept>
+
+#include "mytransform.h"
 
 class MyFrame
 {
@@ -40,24 +44,42 @@ public:
 
 //--------------------------------------------PROTECTED_SET-------------------------------
     inline void setP1(const QPoint &p){x1 = p.x(); y1 = p.y();}      // POINT X1, Y1
-    inline void setP1X(uint x) const {x1 = x;}
-    inline void setP1Y(uint y) const {y1 = y;}
+    inline void setP1X(uint x){x1 = x;}
+    inline void setP1Y(uint y){y1 = y;}
 
     inline void setP2(const QPoint &p){x2 = p.x(); y2 = p.y();}      // POINT X2, Y2
-    inline void setP2X(uint x) const {x2 = x;}
-    inline void setP2Y(uint y) const {y2 = y;}
+    inline void setP2X(uint x){x2 = x;}
+    inline void setP2Y(uint y){y2 = y;}
 
     inline void setP3(const QPoint &p){x3 = p.x(); y3 = p.y();}      // POINT X3, Y3
-    inline void setP3X(uint x) const {x3 = x;}
-    inline void setP3Y(uint y) const {y3 = y;}
+    inline void setP3X(uint x){x3 = x;}
+    inline void setP3Y(uint y){y3 = y;}
 
     inline void setP4(const QPoint &p){x4 = p.x(); y4 = p.y();}      // POINT X4, Y4
-    inline void setP4X(uint x) const {x4 = x;}
-    inline void setP4Y(uint y) const {y4 = y;}
+    inline void setP4X(uint x){x4 = x;}
+    inline void setP4Y(uint y){y4 = y;}
+
+//--------------------------------------------UTILITY-------------------------------------
+    inline uint getNumber() const {return number;}
+    inline void setNumber(uint n) {number = n;}
+
+//--------------------------------------------FUNCTIONAL----------------------------------
+    void translate(int dx, int dy);
+    bool captured(uint x, uint y);
+    void release() const;
+
+    void paint(const QPainter &painter) const;
 
 protected:
     uint x1, x2, x3, x4,
          y1, y2, y3, y4;
+
+    uint number;
+
+    bool capture;
+    uint grub_point;
+
+    static uint object_count;
 };
 
 #endif // MYFRAME_H

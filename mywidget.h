@@ -2,8 +2,14 @@
 #define MYWIDGET_H
 
 #include <QWidget>
+#include <QSize>
 
 #include <vector>
+#include <algorithm>
+#include <functional>
+#include <iterator>
+
+#include "myframe.h"
 
 class MyWidget : public QWidget
 {
@@ -11,19 +17,17 @@ class MyWidget : public QWidget
 public:
     explicit MyWidget(QWidget *parent = 0);
     
-    std::vector<QPoint>* getVector();
-
-    uint getClickNum();
-    void zeroClickNum();
-    void setClickNum(uint k);
-    void incClickNum();
+    std::vector<MyFrame>* getVector();
 signals:
     
 public slots:
     
 private:
-    std::vector<QPoint> points;
-    uint click_num;
+    std::vector<MyFrame> frames;
+
+protected:
+    void resizeEvent ( QResizeEvent * event );
+    bool event ( QEvent * event );
 };
 
 #endif // MYWIDGET_H

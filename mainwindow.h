@@ -26,9 +26,13 @@
 #include <QTransform>
 
 #include <vector>
+#include <functional>
+#include <algorithm>
+#include <iterator>
 
 #include "mywidget.h"
 #include "mytransform.h"
+#include "myframe.h"
 
 #include "qapplication.h"
 

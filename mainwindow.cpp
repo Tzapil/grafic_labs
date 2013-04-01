@@ -111,30 +111,6 @@ void MainWindow::resizeEvent ( QResizeEvent * event )
 
 bool MainWindow::eventFilter( QObject * obj, QEvent * event )
 {
-    if(event->type() == QEvent::MouseButtonRelease)
-    {
-        QMouseEvent *e = dynamic_cast<QMouseEvent*>(event);
-        int x = e->x(), y = e->y();
-
-        MyWidget * w = qobject_cast<MyWidget*>(obj);
-
-        if(!w)
-            return false;
-
-        auto vector = w->getVector();
-        uint cl = w->getClickNum();
-
-        if(cl == 4)
-        {
-            vector->clear();
-            w->zeroClickNum();
-        }
-
-        vector->push_back(QPoint(x, y));
-        w->incClickNum();
-
-        w->update();
-    }
     if(event->type() == QEvent::Paint)
     {
         if( obj == in_img )
@@ -150,8 +126,6 @@ bool MainWindow::eventFilter( QObject * obj, QEvent * event )
 void MainWindow::drawWidget(QWidget *wdg, QImage *img)
 {
     QPainter painter;
-
-    //double hw = 1, hh = 1;
 
     painter.begin(wdg);
 
@@ -172,32 +146,7 @@ void MainWindow::drawWidget(QWidget *wdg, QImage *img)
         return;
     }
 
-    painter.setPen(QColor(0,0,255));
-
-    QPoint *pp = &(*(v->begin()));
-    uint k = 1, xx = pp->x(), yy = pp->y();
-
-    for(auto i=v->begin(); i!=v->end(); ++i)
-    {
-        QPoint *np = &(*(i));
-        uint x = np->x(), y = np->y();
-
-        painter.drawRect(x-2,y-2, 4, 4);
-        painter.drawLine(xx,yy,x,y);
-        painter.drawText(x-4,y-4, QString::number(k));
-
-        pp = np;
-
-        xx = pp->x(); yy = pp->y();
-
-        ++k;
-    }
-
-    if(v->size() == 4)
-    {
-        QPoint *fp = &(*(v->begin()));
-        painter.drawLine(pp->x(),pp->y(),fp->x(),fp->y());
-    }
+    std::for_each(v->begin(), v->end(), [](MyFrame &frame){frame.paint(painter);});
 
     painter.end();
 }
