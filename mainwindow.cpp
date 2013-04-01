@@ -3,16 +3,13 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    out_image = 0;
-    image = 0;
-
     this->setFixedSize(BTN_SIZE,300);
 
     in_img = new MyWidget(this);
-    in_img->installEventFilter(this);
+    in_img->addFrame();
 
     out_img = new MyWidget(this);
-    out_img->installEventFilter(this);
+    out_img->addFrame();
 
     load_btn = new QPushButton(tr("Load img"), this);
     load_btn->setFixedWidth(BTN_SIZE);
@@ -74,18 +71,6 @@ void MainWindow::createTransformMenu()
 
 MainWindow::~MainWindow()
 {
-    if(image)
-    {
-        image->save(tr("input.jpg"));
-        delete image;
-    }
-
-    if(out_image)
-    {
-        out_image->save(tr("dis.jpg"));
-        delete out_image;
-    }
-
     delete l_angle;
     delete l_translate_x;
     delete l_translate_y;
@@ -109,61 +94,24 @@ void MainWindow::resizeEvent ( QResizeEvent * event )
     main_l->setGeometry(QRect(0,0,this->width(),this->height()));
 }
 
-bool MainWindow::eventFilter( QObject * obj, QEvent * event )
-{
-    if(event->type() == QEvent::Paint)
-    {
-        if( obj == in_img )
-            drawWidget(in_img, image);
-
-        if( obj == out_img )
-            drawWidget(out_img, out_image);
-
-    }
-    return true;
-}
-
-void MainWindow::drawWidget(QWidget *wdg, QImage *img)
-{
-    QPainter painter;
-
-    painter.begin(wdg);
-
-    if(img)
-        painter.drawImage(QRect(0,0,wdg->width(),wdg->height()), *img);
-    MyWidget * w = qobject_cast<MyWidget*>(wdg);
-    if(!w)
-    {
-        painter.end();
-        return;
-    }
-
-    auto v = w->getVector();
-
-    if(v->size() == 0)
-    {
-        painter.end();
-        return;
-    }
-
-    std::for_each(v->begin(), v->end(), [](MyFrame &frame){frame.paint(painter);});
-
-    painter.end();
-}
-
 void MainWindow::transform_img_back()
 {
-    if(!image || in_img->getClickNum()<4 || out_img->getClickNum()<4)
+    const QImage *image = in_img->getImage();
+
+    if(!image || in_img->getVector()->size() == 0 || out_img->getVector()->size() == 0)
         return;
 
     QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
 
     auto v1 = in_img->getVector(), v2 = out_img->getVector();
 
-    auto ta1 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(1).x(),v1->at(1).y()), QPoint(v1->at(2).x(),v1->at(2).y())),
-         ta2 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(2).x(),v1->at(2).y()), QPoint(v1->at(3).x(),v1->at(3).y())),
-         tb1 = std::make_tuple(QPoint(v2->at(0).x(),v2->at(0).y()), QPoint(v2->at(1).x(),v2->at(1).y()), QPoint(v2->at(2).x(),v2->at(2).y())),
-         tb2 = std::make_tuple(QPoint(v2->at(0).x(),v2->at(0).y()), QPoint(v2->at(2).x(),v2->at(2).y()), QPoint(v2->at(3).x(),v2->at(3).y()));
+    QPoint p1(v1->at(0).getP1()), p2(v1->at(0).getP2()),p3(v1->at(0).getP3()),p4(v1->at(0).getP4()),
+           op1(v2->at(0).getP1()), op2(v2->at(0).getP2()), op3(v2->at(0).getP3()), op4(v2->at(0).getP4());
+
+    auto ta1 = std::make_tuple(p1, p2, p3),
+         ta2 = std::make_tuple(p1, p3, p4),
+         tb1 = std::make_tuple(op1, op2, op3),
+         tb2 = std::make_tuple(op1, op3, op4);
 
     MyTransform tr1, tr2;
 
@@ -219,7 +167,9 @@ void MainWindow::transform_img_back()
 
 void MainWindow::transform_img()
 {
-    if(!image || in_img->getClickNum()<4 || out_img->getClickNum()<4)
+    const QImage *image = in_img->getImage();
+
+    if(!image || in_img->getVector()->size() == 0 || out_img->getVector()->size() == 0)
         return;
 
     QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
@@ -231,13 +181,15 @@ void MainWindow::transform_img()
         painter.setPen(pen);
         painter.drawRect(QRect(0,0,image->width()-1,image->height()-1));
     painter.end();
-
     auto v1 = in_img->getVector(), v2 = out_img->getVector();
 
-    auto ta1 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(1).x(),v1->at(1).y()), QPoint(v1->at(2).x(),v1->at(2).y())),
-         ta2 = std::make_tuple(QPoint(v1->at(0).x(),v1->at(0).y()), QPoint(v1->at(2).x(),v1->at(2).y()), QPoint(v1->at(3).x(),v1->at(3).y())),
-         tb1 = std::make_tuple(QPoint(v2->at(0).x(),v2->at(0).y()), QPoint(v2->at(1).x(),v2->at(1).y()), QPoint(v2->at(2).x(),v2->at(2).y())),
-         tb2 = std::make_tuple(QPoint(v2->at(0).x(),v2->at(0).y()), QPoint(v2->at(2).x(),v2->at(2).y()), QPoint(v2->at(3).x(),v2->at(3).y()));
+    QPoint p1(v1->at(0).getP1()), p2(v1->at(0).getP2()),p3(v1->at(0).getP3()),p4(v1->at(0).getP4()),
+           op1(v2->at(0).getP1()), op2(v2->at(0).getP2()), op3(v2->at(0).getP3()), op4(v2->at(0).getP4());
+
+    auto ta1 = std::make_tuple(p1, p2, p3),
+         ta2 = std::make_tuple(p1, p3, p4),
+         tb1 = std::make_tuple(op1, op2, op3),
+         tb2 = std::make_tuple(op1, op3, op4);
 
     MyTransform tr1, tr2;
 
@@ -283,6 +235,8 @@ void MainWindow::transform_img()
 
 void MainWindow::transform_prob()
 {
+    const QImage *image = in_img->getImage();
+
     if(!image)
         return;
 
@@ -320,46 +274,37 @@ void MainWindow::load_img ()
 {
     QFileDialog dialog;
     QString name;
+    QImage image;
 
     name = dialog.getOpenFileName(this, tr("Choose img file"),QString(),tr("Images (*.png *.xpm *.jpg *.jpe *.jpeg)"));
     if(!name.isEmpty())
     {
-        image = new QImage(name);
+        image = QImage(name);
         QRect desk_r = qApp->desktop()->screenGeometry();
         desk_r.setWidth(desk_r.width()-BTN_SIZE-100);
         desk_r.setHeight(desk_r.height()-200);
-        if(desk_r.width()<image->width()*2 || desk_r.height()<image->height())
+        if(desk_r.width()<image.width()*2 || desk_r.height()<image.height())
         {
             QImage temp;
-            if(image->width()>image->height())
-                temp = image->scaledToWidth(desk_r.width()/2);
+            if(image.width()>image.height())
+                temp = image.scaledToWidth(desk_r.width()/2);
             else
-                temp = image->scaledToHeight(desk_r.height());
+                temp = image.scaledToHeight(desk_r.height());
 
-            delete image;
-            image = new QImage(temp);
+            image = QImage(temp);
         }
 
-        this->setFixedSize(image->width()*2+BTN_SIZE,image->height());
+        this->setFixedSize(image.width()*2+BTN_SIZE,image.height());
         desk_r = qApp->desktop()->screenGeometry();
         QPoint npos = this->pos();
-        if((npos.x()+this->width())>desk_r.width())
-            npos.setX(desk_r.width()-this->width());
-        if((npos.y()+this->height())>desk_r.height())
-            npos.setY(desk_r.height()-this->height());
 
         this->move(npos);
-        in_img->getVector()->clear(); out_img->getVector()->clear();
-        in_img->update();
+        //in_img->getVector()->clear(); out_img->getVector()->clear();
+        in_img->setImage(image);
     }
 }
 
 void MainWindow::updateImgs(QImage *iii)
 {
-    if( out_image )
-        delete out_image;
-
-    out_image = iii;
-
-    out_img->update();
+    out_img->setImage(*iii);
 }

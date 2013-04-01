@@ -66,9 +66,11 @@ public:
 //--------------------------------------------FUNCTIONAL----------------------------------
     void translate(int dx, int dy);
     bool captured(uint x, uint y);
-    void release() const;
+    void release();
 
-    void paint(const QPainter &painter) const;
+    void dragNdrop(int dx, int dy);
+    void move(int dx, int dy);
+    void paint(QPainter &painter) const;
 
 protected:
     uint x1, x2, x3, x4,

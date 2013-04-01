@@ -48,9 +48,6 @@ public:
 
 protected:
     void resizeEvent ( QResizeEvent * event );
-    bool eventFilter( QObject * obj, QEvent * event );
-
-    void drawWidget(QWidget *wdg, QImage *img=0);
 
     void updateImgs(QImage *iii);
 private slots:
@@ -59,8 +56,6 @@ private slots:
     void transform_img_back();
     void transform_prob();
 private:
-    QImage *image,
-           *out_image;
     QPushButton *load_btn,
                 *transform_btn,
                 *transform_back_btn,

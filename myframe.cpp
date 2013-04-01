@@ -1,13 +1,15 @@
 #include "myframe.h"
 
+uint MyFrame::object_count = 0;
+
 //----------------------------------------CONSTRUCTORS----------------------------------------------------
 MyFrame::MyFrame()
 {
     x1 = 0; x2 = 0; x3 = 0; x4 = 0;
     y1 = 0; y2 = 0; y3 = 0; y4 = 0;
 
-    object_count ++;
-    number = object_count;
+    this->object_count++;
+    number = this->object_count;
     capture = false;
     grub_point = 0;
 }
@@ -20,8 +22,8 @@ MyFrame::MyFrame(const QRect &rect)
     x2 = x3 = x1 + rect.width();
     y3 = y4 = y1 + rect.height();
 
-    object_count ++;
-    number = object_count;
+    this->object_count++;
+    number = this->object_count;
 }
 
 MyFrame::MyFrame(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
@@ -31,8 +33,8 @@ MyFrame::MyFrame(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPo
     x3 = p3.x(); y3 = p3.y();
     x4 = p4.x(); y4 = p4.y();
 
-    object_count ++;
-    number = object_count;
+    this->object_count++;
+    number = this->object_count;
     capture = false;
     grub_point = 0;
 }
@@ -48,8 +50,8 @@ MyFrame::MyFrame(const std::tuple<QPoint, QPoint, QPoint, QPoint> &fr)
     p = &std::get<3>(fr);
     x4 = p->x(); y4 = p->y();
 
-    object_count ++;
-    number = object_count;
+    this->object_count++;
+    number = this->object_count;
     capture = false;
     grub_point = 0;
 }
@@ -65,8 +67,8 @@ MyFrame::MyFrame(const std::array<QPoint, 4> &v)
     p = &v.at(3);
     x4 = p->x(); y4 = p->y();
 
-    object_count ++;
-    number = object_count;
+    this->object_count ++;
+    number = this->object_count;
     capture = false;
     grub_point = 0;
 }
@@ -91,27 +93,41 @@ void MyFrame::translate(int dx, int dy)
         y4 += dy;
 }
 
-void MyFrame::release() const
+void MyFrame::release()
 {
     grub_point = 0;
     capture = false;
 }
 
-void paint(const QPainter &painter) const
+void MyFrame::paint(QPainter &painter) const
 {
     QColor color((number%20)+1);
-    color.setAlpha(200 - (capture?100:0));
+    color.setAlpha(150 + (capture?50:0));
     QPen pen(color);
-    pen.setBrush(QBrush(color));
+    QBrush brush(color);
+    //pen.setBrush(QBrush(color));
 
     painter.save();
     painter.setPen(pen);
+    painter.setBrush(brush);
 
     QPolygon polygon;
     polygon << QPoint(x1, y1) << QPoint(x2, y2) << QPoint(x3, y3) << QPoint(x4, y4);
     painter.drawPolygon(polygon);
 
     painter.restore();
+}
+
+void MyFrame::dragNdrop(int dx, int dy)
+{
+    if(capture)
+        move(dx, dy);
+}
+
+void MyFrame::move(int dx, int dy)
+{
+    x1 += dx; x2 += dx; x3 += dx; x4 += dx;
+    y1 += dy; y2 += dy; y3 += dy; y4 += dy;
 }
 
 bool MyFrame::captured(uint x, uint y)
