@@ -11,6 +11,7 @@
 #include <utility>
 #include <functional>
 #include <array>
+#include <vector>
 #include <stdexcept>
 #include <cmath>
 
@@ -30,40 +31,17 @@ public:
     MyFrame(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
     MyFrame(const std::tuple<QPoint, QPoint, QPoint, QPoint> &fr);
     MyFrame(const std::array<QPoint, 4> &v);
+    MyFrame(const std::vector<QPoint> &v);
 
 //--------------------------------------------PROTECTED_GET--------------------------------
-    inline QPoint getP1() const {return QPoint(x1 ,y1);}             // POINT X1, Y1
-    inline int getP1X() const {return x1;}
-    inline int getP1Y() const {return y1;}
-
-    inline QPoint getP2() const {return QPoint(x2 ,y2);}             // POINT X2, Y2
-    inline int getP2X() const {return x2;}
-    inline int getP12Y() const {return y2;}
-
-    inline QPoint getP3() const {return QPoint(x3 ,y3);}             // POINT X3, Y3
-    inline int getP3X() const {return x3;}
-    inline int getP3Y() const {return y3;}
-
-    inline QPoint getP4() const {return QPoint(x4 ,y4);}             // POINT X4, Y4
-    inline int getP4X() const {return x4;}
-    inline int getP4Y() const {return y4;}
+    inline QPoint getPoint(uint pos) const {return QPoint(points.at(pos).first, points.at(pos).second);}      // POINT X1, Y1
+    inline int getPointX(uint pos) const {return points.at(pos).first;}
+    inline int getPointY(uint pos) const {return points.at(pos).second;}
 
 //--------------------------------------------PROTECTED_SET-------------------------------
-    inline void setP1(const QPoint &p){x1 = p.x(); y1 = p.y();}      // POINT X1, Y1
-    inline void setP1X(int x){x1 = x;}
-    inline void setP1Y(int y){y1 = y;}
-
-    inline void setP2(const QPoint &p){x2 = p.x(); y2 = p.y();}      // POINT X2, Y2
-    inline void setP2X(int x){x2 = x;}
-    inline void setP2Y(int y){y2 = y;}
-
-    inline void setP3(const QPoint &p){x3 = p.x(); y3 = p.y();}      // POINT X3, Y3
-    inline void setP3X(int x){x3 = x;}
-    inline void setP3Y(int y){y3 = y;}
-
-    inline void setP4(const QPoint &p){x4 = p.x(); y4 = p.y();}      // POINT X4, Y4
-    inline void setP4X(int x){x4 = x;}
-    inline void setP4Y(int y){y4 = y;}
+    inline void setPoint(const QPoint &p, uint pos){points.at(pos).first = p.x();points.at(pos).second = p.y();}      // POINT X1, Y1
+    inline void setPointX(int x, uint pos){points.at(pos).first = x;}
+    inline void setPointY(int y, uint pos){points.at(pos).second = y;}
 
 //--------------------------------------------UTILITY-------------------------------------
     inline int getNumber() const {return number;}
@@ -83,8 +61,7 @@ public:
     void paint(QPainter &painter) const;
 
 protected:
-    int x1, x2, x3, x4,
-        y1, y2, y3, y4;
+    std::vector<std::pair<int, int> > points;
 
     uint number;
 

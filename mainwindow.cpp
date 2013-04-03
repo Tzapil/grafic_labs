@@ -105,8 +105,8 @@ void MainWindow::transform_img_back()
 
     auto v1 = in_img->getVector(), v2 = out_img->getVector();
 
-    QPoint p1(v1->at(0).getP1()), p2(v1->at(0).getP2()),p3(v1->at(0).getP3()),p4(v1->at(0).getP4()),
-           op1(v2->at(0).getP1()), op2(v2->at(0).getP2()), op3(v2->at(0).getP3()), op4(v2->at(0).getP4());
+    QPoint p1(v1->at(0).getPoint(0)), p2(v1->at(0).getPoint(1)),p3(v1->at(0).getPoint(2)),p4(v1->at(0).getPoint(3)),
+           op1(v2->at(0).getPoint(0)), op2(v2->at(0).getPoint(1)), op3(v2->at(0).getPoint(2)), op4(v2->at(0).getPoint(3));
 
     auto ta1 = std::make_tuple(p1, p2, p3),
          ta2 = std::make_tuple(p1, p3, p4),
@@ -183,8 +183,8 @@ void MainWindow::transform_img()
     painter.end();
     auto v1 = in_img->getVector(), v2 = out_img->getVector();
 
-    QPoint p1(v1->at(0).getP1()), p2(v1->at(0).getP2()),p3(v1->at(0).getP3()),p4(v1->at(0).getP4()),
-           op1(v2->at(0).getP1()), op2(v2->at(0).getP2()), op3(v2->at(0).getP3()), op4(v2->at(0).getP4());
+    QPoint p1(v1->at(0).getPoint(0)), p2(v1->at(0).getPoint(1)),p3(v1->at(0).getPoint(2)),p4(v1->at(0).getPoint(3)),
+           op1(v2->at(0).getPoint(0)), op2(v2->at(0).getPoint(1)), op3(v2->at(0).getPoint(2)), op4(v2->at(0).getPoint(3));
 
     auto ta1 = std::make_tuple(p1, p2, p3),
          ta2 = std::make_tuple(p1, p3, p4),
