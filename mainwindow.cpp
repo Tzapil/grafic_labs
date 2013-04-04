@@ -129,7 +129,7 @@ void MainWindow::transform_img_back()
         {
             QRgb color;
             QPoint pp(x, y);
-            bool t1 = MyTransform::pointInTriangle(pp,tb1), t2 = MyTransform::pointInTriangle(pp,tb2);
+            bool t1 = ATransform::pointInTriangle(pp,tb1), t2 = ATransform::pointInTriangle(pp,tb2);
 
             if(!(t1 || t2))
             {
@@ -205,7 +205,7 @@ void MainWindow::transform_img()
             QRgb color;
             QPoint pp(x, y);
 
-            bool t1 = MyTransform::pointInTriangle(pp,ta1), t2 = MyTransform::pointInTriangle(pp,ta2);
+            bool t1 = ATransform::pointInTriangle(pp,ta1), t2 = ATransform::pointInTriangle(pp,ta2);
 
                         if(t1)
                         {

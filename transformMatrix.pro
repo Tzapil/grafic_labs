@@ -14,11 +14,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     mywidget.cpp \
     mytransform.cpp \
-    myframe.cpp
+    myframe.cpp \
+    atransform.cpp
 
 HEADERS  += mainwindow.h \
     mywidget.h \
     mytransform.h \
-    myframe.h
+    myframe.h \
+    atransform.h
 
 QMAKE_CXXFLAGS += -std=gnu++0x

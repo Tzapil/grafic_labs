@@ -31,6 +31,7 @@
 #include <iterator>
 
 #include "mywidget.h"
+#include "atransform.h"
 #include "mytransform.h"
 #include "myframe.h"
 

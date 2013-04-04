@@ -143,36 +143,6 @@ void MyFrame::dragNdrop(int dx, int dy)
 void MyFrame::move(int dx, int dy)
 {
     std::for_each(points.begin(), points.end(), [dx, dy](std::pair<int,int> &p){p.first += dx; p.second += dy;});
-
-    /*int min_x = MIN4(x1, x2, x3, x4),
-        min_y = MIN4(y1, y2, y3, y4),
-        max_x = MAX4(x1, x2, x3, x4),
-        max_y = MAX4(y1, y2, y3, y4);
-    if(min_x<x_low_bound)
-    {
-        uint mod = abs(min_x);
-        x1 += mod; x2 += mod;
-        x3 += mod; x4 += mod;
-    }
-    if(min_y<y_low_bound)
-    {
-        uint mod = abs(min_y);
-        y1 += mod; y2 += mod;
-        y3 += mod; y4 += mod;
-    }
-
-    if(max_x>=x_hi_bound)
-    {
-        int mod = x_hi_bound-max_x-1;
-        x1 += mod; x2 += mod;
-        x3 += mod; x4 += mod;
-    }
-    if(max_y>=y_hi_bound)
-    {
-        int mod = y_hi_bound-max_y-1;
-        y1 += mod; y2 += mod;
-        y3 += mod; y4 += mod;
-    }*/
 }
 
 bool MyFrame::captured(int x, int y)
@@ -190,7 +160,7 @@ bool MyFrame::captured(int x, int y)
            p3(points.at(2).first, points.at(2).second),p4(points.at(3).first, points.at(3).second);
     auto tr1 = std::make_tuple(p1, p2, p3),
          tr2 = std::make_tuple(p3, p4, p1);
-    if(MyTransform::pointInTriangle(QPoint(x, y), tr1) || MyTransform::pointInTriangle(QPoint(x, y), tr2))
+    if(ATransform::pointInTriangle(QPoint(x, y), tr1) || ATransform::pointInTriangle(QPoint(x, y), tr2))
     {
         capture = true;
         return true;

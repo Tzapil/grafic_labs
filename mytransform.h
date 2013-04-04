@@ -7,7 +7,9 @@
 #include <tuple>
 #include <vector>
 
-class MyTransform
+#include "atransform.h"
+
+class MyTransform:public ATransform
 {
 public:
     MyTransform();

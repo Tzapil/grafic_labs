@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <cmath>
 
+#include "atransform.h"
 #include "mytransform.h"
 
 #define MIN2(a,b) (a<b?a:b)
