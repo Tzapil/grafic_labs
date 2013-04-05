@@ -13,14 +13,16 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     mywidget.cpp \
-    mytransform.cpp \
     myframe.cpp \
-    atransform.cpp
+    atransform.cpp \
+    affinetransform.cpp \
+    perspectivetransform.cpp
 
 HEADERS  += mainwindow.h \
     mywidget.h \
-    mytransform.h \
     myframe.h \
-    atransform.h
+    atransform.h \
+    affinetransform.h \
+    perspectivetransform.h
 
 QMAKE_CXXFLAGS += -std=gnu++0x

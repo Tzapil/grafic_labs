@@ -113,7 +113,7 @@ void MainWindow::transform_img_back()
          tb1 = std::make_tuple(op1, op2, op3),
          tb2 = std::make_tuple(op1, op3, op4);
 
-    MyTransform tr1, tr2;
+    AffineTransform tr1, tr2;
 
     tr1.generateFrom3Points(ta1, tb1);
     tr2.generateFrom3Points(ta2, tb2);
@@ -191,7 +191,7 @@ void MainWindow::transform_img()
          tb1 = std::make_tuple(op1, op2, op3),
          tb2 = std::make_tuple(op1, op3, op4);
 
-    MyTransform tr1, tr2;
+    AffineTransform tr1, tr2;
 
     tr1.generateFrom3Points(ta1, tb1);
     tr2.generateFrom3Points(ta2, tb2);
@@ -242,7 +242,7 @@ void MainWindow::transform_prob()
 
     QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
 
-    MyTransform tr1;
+    AffineTransform tr1;
     int agl = angle->value(),
         tr_x = translate_x->value(),
         tr_y = translate_y->value();

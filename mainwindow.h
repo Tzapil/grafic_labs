@@ -32,7 +32,7 @@
 
 #include "mywidget.h"
 #include "atransform.h"
-#include "mytransform.h"
+#include "affinetransform.h"
 #include "myframe.h"
 
 #include "qapplication.h"

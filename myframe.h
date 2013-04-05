@@ -16,7 +16,7 @@
 #include <cmath>
 
 #include "atransform.h"
-#include "mytransform.h"
+#include "affinetransform.h"
 
 #define MIN2(a,b) (a<b?a:b)
 #define MIN4(a,b,c,d) (MIN2(MIN2(MIN2(a,b),c),d))
