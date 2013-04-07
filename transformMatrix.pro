@@ -16,13 +16,16 @@ SOURCES += main.cpp\
     myframe.cpp \
     atransform.cpp \
     affinetransform.cpp \
-    perspectivetransform.cpp
+    perspectivetransform.cpp \
+    bilinetransform.cpp
 
 HEADERS  += mainwindow.h \
     mywidget.h \
     myframe.h \
     atransform.h \
     affinetransform.h \
-    perspectivetransform.h
+    perspectivetransform.h \
+    agg_simul_eq.h \
+    bilinetransform.h
 
 QMAKE_CXXFLAGS += -std=gnu++0x

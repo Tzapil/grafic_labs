@@ -6,10 +6,12 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(BTN_SIZE,300);
 
     in_img = new MyWidget(this);
-    in_img->addFrame();
+    //in_img->addFrame();
+    in_img->setNet(2, 3);
 
     out_img = new MyWidget(this);
-    out_img->addFrame();
+    //out_img->addFrame();
+    //out_img->setNet(2,2);
 
     load_btn = new QPushButton(tr("Load img"), this);
     load_btn->setFixedWidth(BTN_SIZE);
@@ -96,141 +98,13 @@ void MainWindow::resizeEvent ( QResizeEvent * event )
 
 void MainWindow::transform_img_back()
 {
-    const QImage *image = in_img->getImage();
-
-    if(!image || in_img->getVector()->size() == 0 || out_img->getVector()->size() == 0)
-        return;
-
-    QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
-
-    auto v1 = in_img->getVector(), v2 = out_img->getVector();
-
-    QPoint p1(v1->at(0).getPoint(0)), p2(v1->at(0).getPoint(1)),p3(v1->at(0).getPoint(2)),p4(v1->at(0).getPoint(3)),
-           op1(v2->at(0).getPoint(0)), op2(v2->at(0).getPoint(1)), op3(v2->at(0).getPoint(2)), op4(v2->at(0).getPoint(3));
-
-    auto ta1 = std::make_tuple(p1, p2, p3),
-         ta2 = std::make_tuple(p1, p3, p4),
-         tb1 = std::make_tuple(op1, op2, op3),
-         tb2 = std::make_tuple(op1, op3, op4);
-
-    AffineTransform tr1, tr2;
-
-    tr1.generateFrom3Points(ta1, tb1);
-    tr2.generateFrom3Points(ta2, tb2);
-
-    tr1.reverse();
-    tr2.reverse();
-
-    uint w = new_img->width(),
-         h = new_img->height();
-
-    for(uint y=0;y<h;++y)
-        for(uint x=0;x<w;++x)
-        {
-            QRgb color;
-            QPoint pp(x, y);
-            bool t1 = ATransform::pointInTriangle(pp,tb1), t2 = ATransform::pointInTriangle(pp,tb2);
-
-            if(!(t1 || t2))
-            {
-                color = qRgb(0,0,0);
-                new_img->setPixel(x, y, color);
-            }
-            if(t1)
-            {
-                QPoint rp = tr1.transformPoint(pp);
-                int rx = rp.x(), ry = rp.y();
-                if(rx<0 || ry<0 || rx>w || ry>h)
-                    color = qRgb(255,255,255);
-                else
-                    color = image->pixel(rx, ry);
-                new_img->setPixel(x, y, color);
-                continue;
-            }
-
-            if(t2)
-            {
-                QPoint rp = tr2.transformPoint(pp);
-                int rx = rp.x(), ry = rp.y();
-                if(rx<0 || ry<0 || rx>=w || ry>=h)
-                    color = qRgb(255,255,255);
-                else
-                    color = image->pixel(rx, ry);
-                new_img->setPixel(x, y, color);
-                continue;
-            }
-
-        }
-    updateImgs(new_img);
+    out_img->setImage(*in_img->transform_back());
 }
 
 
 void MainWindow::transform_img()
 {
-    const QImage *image = in_img->getImage();
-
-    if(!image || in_img->getVector()->size() == 0 || out_img->getVector()->size() == 0)
-        return;
-
-    QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
-    QPainter painter;
-    painter.begin(new_img);
-    QBrush brush(QColor(0,0,0));
-        QPen pen(QColor(0,0,0));
-        painter.setBrush(brush);
-        painter.setPen(pen);
-        painter.drawRect(QRect(0,0,image->width()-1,image->height()-1));
-    painter.end();
-    auto v1 = in_img->getVector(), v2 = out_img->getVector();
-
-    QPoint p1(v1->at(0).getPoint(0)), p2(v1->at(0).getPoint(1)),p3(v1->at(0).getPoint(2)),p4(v1->at(0).getPoint(3)),
-           op1(v2->at(0).getPoint(0)), op2(v2->at(0).getPoint(1)), op3(v2->at(0).getPoint(2)), op4(v2->at(0).getPoint(3));
-
-    auto ta1 = std::make_tuple(p1, p2, p3),
-         ta2 = std::make_tuple(p1, p3, p4),
-         tb1 = std::make_tuple(op1, op2, op3),
-         tb2 = std::make_tuple(op1, op3, op4);
-
-    AffineTransform tr1, tr2;
-
-    tr1.generateFrom3Points(ta1, tb1);
-    tr2.generateFrom3Points(ta2, tb2);
-
-    uint w = new_img->width(),
-         h = new_img->height();
-
-    for(uint y=0;y<h;++y)
-        for(uint x=0;x<w;++x)
-        {
-            QRgb color;
-            QPoint pp(x, y);
-
-            bool t1 = ATransform::pointInTriangle(pp,ta1), t2 = ATransform::pointInTriangle(pp,ta2);
-
-                        if(t1)
-                        {
-                            QPoint rp = tr1.transformPoint(pp);
-                            int rx = rp.x(), ry = rp.y();
-                            if(rx<0 || ry<0 || rx>=w || ry>=h)
-                                continue;
-                            color = image->pixel(x, y);
-                            new_img->setPixel(rx, ry, color);
-                            continue;
-                        }
-
-                        if(t2)
-                        {
-                            QPoint rp = tr2.transformPoint(pp);
-                            int rx = rp.x(), ry = rp.y();
-                            if(rx<0 || ry<0 || rx>=w || ry>=h)
-                                continue;
-                            color = image->pixel(x, y);
-                            new_img->setPixel(rx, ry, color);
-                            continue;
-                        }
-
-        }
-    updateImgs(new_img);
+    out_img->setImage(*in_img->transform());
 }
 
 void MainWindow::transform_prob()
@@ -257,8 +131,8 @@ void MainWindow::transform_prob()
     for(uint y=0;y<h;++y)
         for(uint x=0;x<w;++x)
         {
-                QPoint pp(x, y);
-                QPoint rp = tr1.transformPoint(pp);
+                QPointF pp(x, y);
+                QPointF rp = tr1.transformPoint(pp);
                 int rx = rp.x(), ry = rp.y();
                 QRgb color;
                 if(rx<0 || ry<0 || rx>=w || ry>=h)

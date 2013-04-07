@@ -39,6 +39,14 @@ MyFrame::MyFrame(const QRect &rect)
     init();
 }
 
+MyFrame::MyFrame(const MyFrame &c)
+{
+    init();
+    points.clear();
+    for(int i=0; i<4;++i)
+        points.push_back(std::make_pair(c.getPointX(i),c.getPointY(i)));
+}
+
 MyFrame::MyFrame(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
 {
     points.clear();
@@ -101,14 +109,14 @@ void MyFrame::release()
 void MyFrame::paint(QPainter &painter) const
 {
     QColor color(255, 0, 0);
-    color.setAlpha(100 + (capture || grub_point?50:0));
+    color.setAlpha(100 + (capture || grub_point?100:0));
     QPen pen(color);
-    QBrush brush(color);
+    //QBrush brush(color);
     //pen.setBrush(QBrush(color));
 
     painter.save();
     painter.setPen(pen);
-    painter.setBrush(brush);
+    //painter.setBrush(brush);
 
     QPolygon polygon;
     for_each(points.begin(), points.end(), [&polygon](std::pair<int,int> p){polygon << QPoint(p.first, p.second);});
@@ -155,7 +163,7 @@ bool MyFrame::captured(int x, int y)
             return true;
         }
     }
-
+/*
     QPoint p1(points.at(0).first, points.at(0).second),p2(points.at(1).first, points.at(1).second),
            p3(points.at(2).first, points.at(2).second),p4(points.at(3).first, points.at(3).second);
     auto tr1 = std::make_tuple(p1, p2, p3),
@@ -165,6 +173,6 @@ bool MyFrame::captured(int x, int y)
         capture = true;
         return true;
     }
-
+*/
     return false;
 }

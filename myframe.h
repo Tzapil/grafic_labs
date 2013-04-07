@@ -28,6 +28,7 @@ class MyFrame
 public:
 //--------------------------------------------CONSTRUCTORS---------------------------------
     MyFrame();
+    MyFrame(const MyFrame &c);
     MyFrame(const QRect &rect);
     MyFrame(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
     MyFrame(const std::tuple<QPoint, QPoint, QPoint, QPoint> &fr);
@@ -50,6 +51,12 @@ public:
 
     inline void setLowBounds(int x = 0, int y = 0) {x_low_bound = x; x_low_bound = y;}
     inline void setHiBounds(int x = 500, int y = 500) {x_hi_bound = x; y_hi_bound = y;}
+
+    inline bool containsPoint(const QPoint &p) const {
+        QPolygon polygon;
+        for_each(points.begin(), points.end(), [&polygon](std::pair<int,int> p){polygon << QPoint(p.first, p.second);});
+        return polygon.containsPoint(p, Qt::WindingFill);
+    }
 
 //--------------------------------------------FUNCTIONAL----------------------------------
     void translate(int dx, int dy);

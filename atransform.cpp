@@ -14,11 +14,11 @@ void ATransform::clone(const ATransform & c)
     m_31 = c.m31(); m_32 = c.m32(); m_33 = c.m33();
 }
 
-bool ATransform::pointInTriangle(const QPoint &point, std::tuple<QPoint, QPoint, QPoint> triangle)
+bool ATransform::pointInTriangle(const QPoint &point, std::vector<QPoint> triangle)
 {
-    QPoint *p1 = &(std::get<0>(triangle)),
-           *p2 = &(std::get<1>(triangle)),
-           *p3 = &(std::get<2>(triangle));
+    QPoint *p1 = &(triangle.at(0)),
+           *p2 = &(triangle.at(1)),
+           *p3 = &(triangle.at(2));
 
             int pl1, pl2, pl3;
             pl1 = (p1->x() - point.x())*(p2->y() - p1->y())-(p2->x() - p1->x())*(p1->y() - point.y());
@@ -30,7 +30,28 @@ bool ATransform::pointInTriangle(const QPoint &point, std::tuple<QPoint, QPoint,
             return false;
 }
 
-QPoint ATransform::transformPoint(const QPoint &point)
+void ATransform::compositeWith(const ATransform &c)
+{
+    double
+        a = m_11, b = m_12,
+        o = m_21, d = m_22,
+        l = m_31, m = m_32,
+        p = m_13, q = m_23,
+        g = m_33;
+    m_11 = a*c.m11() + b*c.m21() + p*c.m31();
+    m_12 = a*c.m12() + b*c.m22() + p*c.m32();
+    m_13 = a*c.m13() + b*c.m23() + p*c.m33();
+
+    m_21 = o*c.m11() + d*c.m21() + q*c.m31();
+    m_22 = o*c.m12() + d*c.m22() + q*c.m32();
+    m_23 = o*c.m13() + d*c.m23() + q*c.m33();
+
+    m_31 = l*c.m11() + m*c.m21() + g*c.m31();
+    m_32 = l*c.m12() + m*c.m22() + g*c.m32();
+    m_33 = l*c.m13() + m*c.m23() + g*c.m33();
+}
+
+QPointF ATransform::transformPoint(const QPointF &point)
 {
     int x = point.x(), y = point.y();
     double new_x = m_11*x+m_21*y+m_31,
@@ -54,9 +75,9 @@ QImage* ATransform::transformImage(QImage &in_img)
         for(uint x=0;x<w;++x)
         {
             QRgb color;
-            QPoint pp(x, y);
+            QPointF pp(x, y);
 
-            QPoint rp = transformPoint(pp);
+            QPointF rp = transformPoint(pp);
             int rx = rp.x(), ry = rp.y();
             if(rx<0 || ry<0 || rx>=w || ry>=h)
                continue;

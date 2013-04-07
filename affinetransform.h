@@ -16,14 +16,14 @@ public:
 
     void reverse();
 
-    QPoint transformPoint(const QPoint &point);
+    virtual QPointF transformPoint(const QPointF &point);
 
     void translate(double dx, double dy);
     void scale(double sx = 1, double sy = 1);
     void rotate(double angle);
     void shear(double shx = 0, double shy = 0);
 
-    void generateFrom3Points(std::tuple<QPoint, QPoint, QPoint> in_points, std::tuple<QPoint, QPoint, QPoint> out_points);
+    virtual void generateFromPoints(std::vector<QPoint> in_points, std::vector<QPoint> out_points);
 
 //--------------------------------------------MATRIX_GET----------------------------------
     virtual inline double m11() const {return m_11;}

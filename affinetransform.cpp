@@ -42,25 +42,25 @@ void AffineTransform::shear(double shx, double shy)
     m_31 += m*shx; m_32 = l*shy + m*mult;
 }
 
-QPoint AffineTransform::transformPoint(const QPoint &point)
+QPointF AffineTransform::transformPoint(const QPointF &point)
 {
 
-    int x = point.x(), y = point.y(),
-        new_x = m_11*x+m_21*y+m_31,
-        new_y = m_12*x+m_22*y+m_32;
+    double x = point.x(), y = point.y(),
+           new_x = m_11*x+m_21*y+m_31,
+           new_y = m_12*x+m_22*y+m_32;
 
-    return QPoint(new_x, new_y);
+    return QPointF(new_x, new_y);
 }
 
-void AffineTransform::generateFrom3Points(std::tuple<QPoint, QPoint, QPoint> in_points, std::tuple<QPoint, QPoint, QPoint> out_points)
+void AffineTransform::generateFromPoints(std::vector<QPoint> in_points, std::vector<QPoint> out_points)
 {
-    QPoint *ip1 = &(std::get<0>(in_points)),
-           *ip2 = &(std::get<1>(in_points)),
-           *ip3 = &(std::get<2>(in_points)),
+    QPoint *ip1 = &(in_points.at(0)),
+           *ip2 = &(in_points.at(1)),
+           *ip3 = &(in_points.at(2)),
 
-           *op1 = &(std::get<0>(out_points)),
-           *op2 = &(std::get<1>(out_points)),
-           *op3 = &(std::get<2>(out_points));
+           *op1 = &(out_points.at(0)),
+           *op2 = &(out_points.at(1)),
+           *op3 = &(out_points.at(2));
 
    long x_0 = ip1->x(), x_1 = ip2->x(), x_2 = ip3->x(),
         y_0 = ip1->y(), y_1 = ip2->y(), y_2 = ip3->y(),

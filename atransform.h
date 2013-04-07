@@ -2,6 +2,7 @@
 #define ATRANSFORM_H
 
 #include <QPoint>
+#include <QPointF>
 #include <QImage>
 
 #include <cmath>
@@ -22,15 +23,17 @@ public:
     virtual void restore();
     virtual void drop();
 
+    virtual void compositeWith(const ATransform &c) ;
+
     virtual QImage* transformImage(QImage &in_img);
-    virtual QPoint transformPoint(const QPoint &point);
+    virtual QPointF transformPoint(const QPointF &point);
 
     virtual void translate(double dx, double dy) = 0;
     virtual void scale(double sx = 1, double sy = 1) = 0;
     virtual void rotate(double angle) = 0;
     virtual void shear(double shx = 0, double shy = 0) = 0;
 
-    virtual void generateFrom3Points(std::tuple<QPoint, QPoint, QPoint> in_points, std::tuple<QPoint, QPoint, QPoint> out_points) = 0;
+    virtual void generateFromPoints(std::vector<QPoint> in_points, std::vector<QPoint> out_points) = 0;
 
     virtual inline double m11() const {return m_11;}
     virtual inline double m12() const {return m_12;}
@@ -42,7 +45,8 @@ public:
     virtual inline double m32() const {return m_32;}
     virtual inline double m33() const {return m_33;}
 
-    static bool pointInTriangle(const QPoint &point, std::tuple<QPoint, QPoint, QPoint> triangle);
+    static bool pointInTriangle(const QPoint &point, std::vector<QPoint> triangle);
+    static bool pointInFrame(const QPoint &point, std::vector<QPoint> triangle);
 
 protected:
     double m_11, m_12, m_13, m_21, m_22, m_23, m_31, m_32, m_33,

@@ -48,55 +48,98 @@ void PerspectiveTransform::shear(double shx, double shy)
     m_31 += m*shx; m_32 = l*shy + m*mult;
 }
 
-QPoint PerspectiveTransform::transformPoint(const QPoint &point)
+QPointF PerspectiveTransform::transformPoint(const QPoint &point)
 {
+    int x = point.x(), y = point.y();
+    double d = 1.0/(x*m_13+y*m_23+1);
+    int
+        new_x = (m_11*x+m_21*y+m_31)*d,
+        new_y = (m_12*x+m_22*y+m_32)*d;
 
-    int x = point.x(), y = point.y(),
-        new_x = m_11*x+m_21*y+m_31,
-        new_y = m_12*x+m_22*y+m_32;
-
-    return QPoint(new_x, new_y);
+    return QPointF(new_x, new_y);
 }
 
-void PerspectiveTransform::generateFrom3Points(std::tuple<QPoint, QPoint, QPoint> in_points, std::tuple<QPoint, QPoint, QPoint> out_points)
+void PerspectiveTransform::compositeWith(const ATransform &c)
 {
-    QPoint *ip1 = &(std::get<0>(in_points)),
-           *ip2 = &(std::get<1>(in_points)),
-           *ip3 = &(std::get<2>(in_points)),
+    ATransform::compositeWith(c);
 
-           *op1 = &(std::get<0>(out_points)),
-           *op2 = &(std::get<1>(out_points)),
-           *op3 = &(std::get<2>(out_points));
+    m_11 /= m_33;
+    m_12 /= m_33;
+    m_13 /= m_33;
 
-   long x_0 = ip1->x(), x_1 = ip2->x(), x_2 = ip3->x(),
-        y_0 = ip1->y(), y_1 = ip2->y(), y_2 = ip3->y(),
+    m_21 /= m_33;
+    m_22 /= m_33;
+    m_23 /= m_33;
 
-        ox_0 = op1->x(), ox_1 = op2->x(), ox_2 = op3->x(),
-        oy_0 = op1->y(), oy_1 = op2->y(), oy_2 = op3->y(),
+    m_31 /= m_33;
+    m_32 /= m_33;
+    m_33 = 1;
+}
 
-        dy12 = y_1-y_2, dy20 = y_2-y_0, dy01 = y_0-y_1,
-        dx21 = x_2-x_1, dx02 = x_0-x_2, dx10 = x_1-x_0,
+void PerspectiveTransform::generateFromPoints(std::vector<QPoint> in_points, std::vector<QPoint> out_points)
+{
+    double left[8][8];
+    double right[8][1];
+    double m_mtx[8][1];
 
-        dxy12 = x_1*y_2-x_2*y_1, dxy20 = x_2*y_0-x_0*y_2, dxy01 = x_0*y_1-x_1*y_0;
+    unsigned i;
+    for (i = 0; i < 4; i++)
+    {
+        unsigned ix = i * 2;
+        unsigned iy = ix + 1;
 
+        QPoint ip = in_points.at(i),
+               op = out_points.at(i);
 
-    double det = 1.0/(x_0*dy12-y_0*(x_1-x_2)+dxy12);
+        left[ix][0]  =  1.0;
+        left[ix][1]  =  (double)ip.x();
+        left[ix][2]  =  (double)ip.y();
+        left[ix][3]  =  0.0;
+        left[ix][4]  =  0.0;
+        left[ix][5]  =  0.0;
+        left[ix][6]  = -(double)ip.x() * (double)op.x();
+        left[ix][7]  = -(double)ip.y() * (double)op.x();
+        right[ix][0] =  (double)op.x();
 
-    m_11 = (dy12*ox_0 + dy20*ox_1 + dy01*ox_2)*det;
-    m_12 = (dy12*oy_0 + dy20*oy_1 + dy01*oy_2)*det;
-    m_21 = (dx21*ox_0 + dx02*ox_1 + dx10*ox_2)*det;
-    m_22 = (dx21*oy_0 + dx02*oy_1 + dx10*oy_2)*det;
+        left[iy][0]  =  0.0;
+        left[iy][1]  =  0.0;
+        left[iy][2]  =  0.0;
+        left[iy][3]  =  1.0;
+        left[iy][4]  =  (double)ip.x();
+        left[iy][5]  =  (double)ip.y();
+        left[iy][6]  = -(double)ip.x() * (double)op.y();
+        left[iy][7]  = -(double)ip.y() * (double)op.y();
+        right[iy][0] =  (double)op.y();
+    }
+    bool m_valid = agg::simul_eq<8, 1>::solve(left, right, m_mtx);
 
-    m_31 = (dxy12*ox_0 + dxy20*ox_1 + dxy01*ox_2)*det;
-    m_32 = (dxy12*oy_0 + dxy20*oy_1 + dxy01*oy_2)*det;
+    if(!m_valid)
+        return;
+
+    m_31 = m_mtx[0][0];
+    m_11 = m_mtx[1][0];
+    m_21 = m_mtx[2][0];
+    m_32 = m_mtx[3][0];
+    m_12 = m_mtx[4][0];
+    m_22 = m_mtx[5][0];
+    m_13 = m_mtx[6][0];
+    m_23 = m_mtx[7][0];
+    m_33 = 1;
 }
 
 void PerspectiveTransform::reverse()
 {
     double _a = m_11, _b = m_12, _c = m_21, _d = m_22, _l = m_31, _m = m_32,
-           det = 1.0/(_a*_d-_b*_c);
+           _p = m_13, _q = m_23;
 
-    m_11 = _d*det; m_12 = -_b*det;
-    m_21 = -_c*det; m_22 = _a*det;
-    m_31 = det*(_c*_m-_l*_d); m_32 = det*(_l*_b-_a*_m);
+    m_33 = _a*_d - _b*_c;
+    m_11 = (_a*1 - _q*_m)/m_33;
+    m_12 = (_m*_p - _b*1)/m_33;
+    m_13 = (_b*_q - _p*_d)/m_33;
+    m_21 = (_m*_l - 1*_c)/m_33;
+    m_22 = (_a*1 - _p*_l)/m_33;
+    m_23 = (_p*_c - _p*_l)/m_33;
+    m_31 = (_c*_l - _l*_d)/m_33;
+    m_32 = (_l*_b - _a*_m)/m_33;
+    m_33 = 1;
 }
