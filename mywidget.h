@@ -36,8 +36,10 @@ public:
         update();
     }
     inline const QImage* getImage(){return image;}
+    inline const QImage* getSaveImage(){return image_save;}
 
     inline const std::vector<MyFrame>* getVector(){return &frames;}
+    inline const std::vector<MyFrame>* getSaveVector(){return &frames_save;}
     inline void restoreImage() {if(image) delete image; image = new QImage(*image_save);}
 
     void transform_img();

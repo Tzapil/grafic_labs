@@ -7,27 +7,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
     in_img = new MyWidget(this);
     //in_img->addFrame();
-    in_img->setNet(2, 3);
+    in_img->setNet(3, 3);
 
     out_img = new MyWidget(this);
     //out_img->addFrame();
-    //out_img->setNet(2,2);
+    out_img->setNet(3, 3);
 
     load_btn = new QPushButton(tr("Load img"), this);
     load_btn->setFixedWidth(BTN_SIZE);
     QObject::connect(load_btn,SIGNAL(clicked()),this,SLOT(load_img()));
 
-    transform_btn = new QPushButton(tr("Direct mapping"), this);
-    transform_btn->setFixedWidth(BTN_SIZE);
-    QObject::connect(transform_btn,SIGNAL(clicked()),this,SLOT(transform_img()));
+    load_second_btn = new QPushButton(tr("Load second img"), this);
+    load_second_btn->setFixedWidth(BTN_SIZE);
+    QObject::connect(load_second_btn,SIGNAL(clicked()),this,SLOT(load_second_img()));
 
-    transform_back_btn = new QPushButton(tr("Inverse mapping"), this);
-    transform_back_btn->setFixedWidth(BTN_SIZE);
-    QObject::connect(transform_back_btn,SIGNAL(clicked()),this,SLOT(transform_img_back()));
-
-    prob_btn = new QPushButton(tr("Transform"), this);
-    prob_btn->setFixedWidth(BTN_SIZE);
-    QObject::connect(prob_btn,SIGNAL(clicked()),this,SLOT(transform_prob()));
+    morf_btn = new QPushButton(tr("Morfing"), this);
+    morf_btn->setFixedWidth(BTN_SIZE);
+    QObject::connect(morf_btn,SIGNAL(clicked()),this,SLOT(morfing()));
 
     btn_l = new QVBoxLayout();
     main_l = new QHBoxLayout();
@@ -35,9 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     main_l->addWidget(in_img);
     main_l->addWidget(out_img);
     btn_l->addWidget(load_btn);
-    btn_l->addWidget(transform_btn);
-    btn_l->addWidget(transform_back_btn);
-    btn_l->addWidget(prob_btn);
+    btn_l->addWidget(load_second_btn);
+    btn_l->addWidget(morf_btn);
     qobject_cast<QVBoxLayout*>(btn_l)->addStretch();
     createTransformMenu();
     main_l->addItem(btn_l);
@@ -46,44 +41,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::createTransformMenu()
 {
-    l_angle = new QLabel(tr("Angle"), this);
-    btn_l->addWidget(l_angle);
-    angle = new QSpinBox(this);
-    angle->setFixedWidth(BTN_SIZE);
-    angle->setMaximum(360);
-    angle->setMinimum(-360);
-    btn_l->addWidget(angle);
-
-    l_translate_x = new QLabel(tr("Translate X"), this);
-    btn_l->addWidget(l_translate_x);
-    translate_x  = new QSpinBox(this);
-    translate_x->setFixedWidth(BTN_SIZE);
-    translate_x->setMaximum(500);
-    translate_x->setMinimum(-500);
-    btn_l->addWidget(translate_x);
-
-    l_translate_y = new QLabel(tr("Translate Y"), this);
-    btn_l->addWidget(l_translate_y);
-    translate_y = new QSpinBox(this);
-    translate_y->setFixedWidth(BTN_SIZE);
-    translate_y->setMaximum(500);
-    translate_y->setMinimum(-500);
-    btn_l->addWidget(translate_y);
+    l_cadres = new QLabel(tr("Steps"), this);
+    btn_l->addWidget(l_cadres);
+    cadres = new QSpinBox(this);
+    cadres->setFixedWidth(BTN_SIZE);
+    cadres->setMaximum(360);
+    cadres->setMinimum(2);
+    btn_l->addWidget(cadres);
 }
 
 MainWindow::~MainWindow()
 {
-    delete l_angle;
-    delete l_translate_x;
-    delete l_translate_y;
-    delete angle;
-    delete translate_x;
-    delete translate_y;
+    delete l_cadres;
 
     delete load_btn;
-    delete transform_btn;
-    delete transform_back_btn;
-    delete prob_btn;
+    delete load_second_btn;
+    delete morf_btn;
 
     delete in_img;
     delete out_img;
@@ -96,55 +69,17 @@ void MainWindow::resizeEvent ( QResizeEvent * event )
     main_l->setGeometry(QRect(0,0,this->width(),this->height()));
 }
 
-void MainWindow::transform_img_back()
-{
-    out_img->setImage(*in_img->transform_back());
-}
-
-
-void MainWindow::transform_img()
-{
-    out_img->setImage(*in_img->transform());
-}
-
-void MainWindow::transform_prob()
-{
-    const QImage *image = in_img->getImage();
-
-    if(!image)
-        return;
-
-    QImage *new_img = new QImage(image->width(),image->height(),QImage::Format_RGB32);
-
-    AffineTransform tr1;
-    int agl = angle->value(),
-        tr_x = translate_x->value(),
-        tr_y = translate_y->value();
-    tr1.rotate(agl);
-    tr1.translate(tr_x,tr_y);
-
-    tr1.reverse();
-
-    uint w = new_img->width(),
-         h = new_img->height();
-
-    for(uint y=0;y<h;++y)
-        for(uint x=0;x<w;++x)
-        {
-                QPointF pp(x, y);
-                QPointF rp = tr1.transformPoint(pp);
-                int rx = rp.x(), ry = rp.y();
-                QRgb color;
-                if(rx<0 || ry<0 || rx>=w || ry>=h)
-                    color = qRgb(255,255,255);
-                else
-                    color = image->pixel(rx, ry);
-                new_img->setPixel(x, y, color);
-        }
-    updateImgs(new_img);
-}
-
 void MainWindow::load_img ()
+{
+    load_img_on_wdg(*in_img);
+}
+
+void MainWindow::load_second_img()
+{
+    load_img_on_wdg(*out_img);
+}
+
+void MainWindow::load_img_on_wdg(QWidget &w)
 {
     QFileDialog dialog;
     QString name;
@@ -169,9 +104,109 @@ void MainWindow::load_img ()
         }
 
         this->setFixedSize(image.width()*2+BTN_SIZE,image.height());
-
-        in_img->setImage(image);
+        (qobject_cast<MyWidget*>(&w))->setImage(image);
+        //in_img->setImage(image);
     }
+}
+void MainWindow::morfing()
+{
+    std::vector<QImage> iv;
+    int steps = cadres->value();
+    auto old_start_in_v = (in_img->getSaveVector()),
+         finish_in_v = (in_img->getVector()),
+         old_start_out_v = (out_img->getVector()),
+         finish_out_v = (out_img->getSaveVector());
+    std::vector<MyFrame> start_in_v,
+                         start_out_v;
+
+    std::copy(old_start_in_v->begin(),old_start_in_v->end(),start_in_v.begin());
+    std::copy(old_start_out_v->begin(),old_start_out_v->end(),start_out_v.begin());
+
+    QImage *start_in_i = new QImage(*in_img->getSaveImage()),
+           *start_out_i = new QImage(*out_img->getImage());
+
+    uint w = start_in_i->width(),
+         h = start_in_i->height();
+
+    for(int i=0;i<=(steps-1);++i)
+    {
+        QImage *in_image = bilineTransformImg(start_in_i, &start_in_v, finish_in_v);
+        QImage *out_image = bilineTransformImg(start_out_i, &start_out_v, finish_out_v);
+        QImage *new_img = new QImage(w,h,QImage::Format_RGB32);
+
+        double k = (double)i/(steps-1);
+
+        for(int x=0;x<w;++x)
+            for(int y=0;y<h;++y)
+            {
+                QColor ip = QColor(in_image->pixel(x, y)),
+                       op = QColor(out_image->pixel(x, y));
+                double red = (1.0-k)*ip.red()+k*op.red(),
+                       green = (1.0-k)*ip.green()+k*op.green(),
+                       blue = (1.0-k)*ip.blue()+k*op.blue();
+                new_img->setPixel(x, y, qRgb(red, green, blue));
+            }
+        iv.push_back(new_img);
+
+
+
+    }
+
+    delete start_in_i;
+    delete start_out_i;
+}
+
+QImage* MainWindow::bilineTransformImg(QImage *image_save, std::vector<MyFrame>* frames, std::vector<MyFrame>* frames_save)
+{
+
+    uint w = image_save->width(),
+         h = image_save->height();
+
+    QImage *new_img = new QImage(w,h,QImage::Format_RGB32);
+
+    QPainter painter;
+    painter.begin(new_img);
+    QBrush brush(QColor(0,0,0));
+        QPen pen(QColor(0,0,0));
+        painter.setBrush(brush);
+        painter.setPen(pen);
+        painter.drawRect(QRect(0,0,w-1,h-1));
+    painter.end();
+
+
+    for(uint i=0;i<frames->size();++i)
+    {
+        auto v1 = frames, v2 = frames_save;
+        QPoint p1(v1->at(i).getPoint(0)), p2(v1->at(i).getPoint(1)),p3(v1->at(i).getPoint(2)),p4(v1->at(i).getPoint(3)),
+               op1(v2->at(i).getPoint(0)), op2(v2->at(i).getPoint(1)), op3(v2->at(i).getPoint(2)), op4(v2->at(i).getPoint(3));
+
+        std::vector<QPoint>
+             vpi{p1,p2,p3,p4},
+             vpo{op1,op2,op3,op4};
+
+        BilineTransform pt;
+
+        pt.generateFromPoints(vpo, vpi);
+
+        for(uint y=0;y<h;++y)
+            for(uint x=0;x<w;++x)
+            {
+                QRgb color;
+                QPoint pp(x, y);
+                if(v2->at(i).containsPoint(pp))
+                {
+                    QPointF rp = pt.transformPoint(pp);
+                    double rx = rp.x(), ry = rp.y();
+                    if(rx<0 || ry<0 || rx>=w || ry>=h)
+                        color = qRgb(255,255,255);
+                    else
+                        color = image_save->pixel(rx, ry);
+
+                    new_img->setPixel(x, y, color);
+                }
+            }
+    }
+    return new_img;
 }
 
 void MainWindow::updateImgs(QImage *iii)
