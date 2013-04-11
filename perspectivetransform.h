@@ -21,11 +21,6 @@ public:
 
     void compositeWith(const ATransform &c) ;
 
-    void translate(double dx, double dy);
-    void scale(double sx = 1, double sy = 1);
-    void rotate(double angle);
-    void shear(double shx = 0, double shy = 0);
-
     void generateFromPoints(std::vector<QPoint> in_points, std::vector<QPoint> out_points);
 
 //--------------------------------------------MATRIX_GET----------------------------------

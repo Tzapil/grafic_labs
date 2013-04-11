@@ -28,11 +28,6 @@ public:
     virtual QImage* transformImage(QImage &in_img);
     virtual QPointF transformPoint(const QPointF &point);
 
-    virtual void translate(double dx, double dy) = 0;
-    virtual void scale(double sx = 1, double sy = 1) = 0;
-    virtual void rotate(double angle) = 0;
-    virtual void shear(double shx = 0, double shy = 0) = 0;
-
     virtual void generateFromPoints(std::vector<QPoint> in_points, std::vector<QPoint> out_points) = 0;
 
     virtual inline double m11() const {return m_11;}

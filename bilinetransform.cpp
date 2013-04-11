@@ -4,50 +4,6 @@ BilineTransform::BilineTransform():ATransform()
 {
 }
 
-void BilineTransform::translate(double dx, double dy)
-{
-    double p = m_13, q = m_23;
-
-    m_11 += p*dx;
-    m_12 += p*dy;
-    m_21 += q*dx;
-    m_22 += q*dy;
-    m_31 += dx;
-    m_32 += dy;
-}
-
-void BilineTransform::scale(double sx, double sy)
-{
-    m_11 *= sx; m_21 *= sx; m_31 *= sx;
-    m_12 *= sy; m_22 *= sy; m_32 *= sy;
-}
-
-void BilineTransform::rotate(double angle)
-{
-    double rad = angle*M_PI/180,
-           sn = sin(rad),
-           cs = cos(rad),
-           a = m_11, b = m_12,
-           c = m_21, d = m_22,
-           l = m_31, m = m_32;
-
-    m_11 = cs*a - sn*b; m_12 = sn*a + cs*b;
-    m_21 = cs*c - sn*d; m_22 = sn*c + cs*d;
-    m_31 = cs*l - sn*m; m_32 = sn*l + cs*m;
-}
-
-void BilineTransform::shear(double shx, double shy)
-{
-    double mult = (shx*shy+1),
-           a = m_11, b = m_12,
-           c = m_21, d = m_22,
-           l = m_31, m = m_32;
-
-    m_11 += b*shx; m_12 = a*shy + b*mult;
-    m_21 += d*shx; m_22 = c*shy + d*mult;
-    m_31 += m*shx; m_32 = l*shy + m*mult;
-}
-
 QPointF BilineTransform::transformPoint(const QPoint &point)
 {
     double x = point.x(), y = point.y(),

@@ -71,7 +71,7 @@ private:
 
     void createTransformMenu();
 
-    QImage* bilineTransformImg(QImage *image_save, std::vector<MyFrame>* frames, std::vector<MyFrame>* frames_save);
+    QImage* bilineTransformImg(const QImage *image_save,const std::vector<MyFrame>* frames,const std::vector<MyFrame>* frames_save);
 };
 
 #endif // MAINWINDOW_H

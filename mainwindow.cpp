@@ -114,27 +114,53 @@ void MainWindow::morfing()
     int steps = cadres->value();
     auto old_start_in_v = (in_img->getSaveVector()),
          finish_in_v = (in_img->getVector()),
-         old_start_out_v = (out_img->getVector()),
-         finish_out_v = (out_img->getSaveVector());
-    std::vector<MyFrame> start_in_v,
-                         start_out_v;
-
-    std::copy(old_start_in_v->begin(),old_start_in_v->end(),start_in_v.begin());
-    std::copy(old_start_out_v->begin(),old_start_out_v->end(),start_out_v.begin());
+         old_start_out_v = (out_img->getSaveVector()),
+         finish_out_v = (out_img->getVector());
+    std::vector<MyFrame> _in_v,
+                         _out_v;
 
     QImage *start_in_i = new QImage(*in_img->getSaveImage()),
-           *start_out_i = new QImage(*out_img->getImage());
+           *start_out_i = new QImage(*out_img->getSaveImage());
 
     uint w = start_in_i->width(),
          h = start_in_i->height();
 
     for(int i=0;i<=(steps-1);++i)
     {
-        QImage *in_image = bilineTransformImg(start_in_i, &start_in_v, finish_in_v);
-        QImage *out_image = bilineTransformImg(start_out_i, &start_out_v, finish_out_v);
-        QImage *new_img = new QImage(w,h,QImage::Format_RGB32);
-
         double k = (double)i/(steps-1);
+        _in_v.clear();_out_v.clear();
+
+        for(int k=0;k<old_start_in_v->size();++k)
+        {
+            MyFrame fr(old_start_in_v->at(k)),
+                    res(finish_in_v->at(k));
+            for(int l=0;l<fr.pointNumber();++l)
+            {
+                QPoint p = fr.getPoint(l),
+                       z = res.getPoint(l);
+                double stx = (double)(p.x()-z.x())/(steps-1),
+                       sty = (double)(p.y()-z.y())/(steps-1);
+                fr.setPoint(QPoint(p.x()-stx*i,p.y()-sty*i), l);
+            }
+            _in_v.push_back(fr);
+
+            MyFrame ofr(old_start_out_v->at(k)),
+                    ores(finish_out_v->at(k));
+            for(int l=0;l<ofr.pointNumber();++l)
+            {
+                QPoint p = ofr.getPoint(l),
+                       z = ores.getPoint(l);
+                double stx = (double)(p.x()-z.x())/(steps-1),
+                       sty = (double)(p.y()-z.y())/(steps-1);
+                QPoint pp = QPoint(z.x()+stx*i,z.y()+sty*i);
+                ofr.setPoint(pp, l);
+            }
+            _out_v.push_back(ofr);
+        }
+
+        QImage *in_image = bilineTransformImg(start_in_i, old_start_in_v, &_in_v);
+        QImage *out_image = bilineTransformImg(start_out_i, old_start_out_v, &_out_v);
+        QImage *new_img = new QImage(w,h,QImage::Format_RGB32);
 
         for(int x=0;x<w;++x)
             for(int y=0;y<h;++y)
@@ -146,17 +172,21 @@ void MainWindow::morfing()
                        blue = (1.0-k)*ip.blue()+k*op.blue();
                 new_img->setPixel(x, y, qRgb(red, green, blue));
             }
-        iv.push_back(new_img);
+        iv.push_back(*new_img);
 
-
-
+        in_image->save(QString("biline_in")+QString::number(i)+QString(".jpg"));
+        out_image->save(QString("biline_out")+QString::number(i)+QString(".jpg"));
+        new_img->save(QString("biline_result")+QString::number(i)+QString(".jpg"));
+        delete in_image;
+        delete out_image;
+        delete new_img;
     }
 
     delete start_in_i;
     delete start_out_i;
 }
 
-QImage* MainWindow::bilineTransformImg(QImage *image_save, std::vector<MyFrame>* frames, std::vector<MyFrame>* frames_save)
+QImage* MainWindow::bilineTransformImg(const QImage *image_save,const std::vector<MyFrame>* frames,const std::vector<MyFrame>* frames_save)
 {
 
     uint w = image_save->width(),
@@ -188,8 +218,23 @@ QImage* MainWindow::bilineTransformImg(QImage *image_save, std::vector<MyFrame>*
 
         pt.generateFromPoints(vpo, vpi);
 
-        for(uint y=0;y<h;++y)
-            for(uint x=0;x<w;++x)
+        uint minx = w, maxx = 0,
+             miny = h, maxy = 0;
+
+        std::for_each(vpo.begin(), vpo.end(),
+        [&minx, &maxx, &miny, &maxy](QPoint p){
+            if(maxx<p.x())
+                maxx = p.x();
+            if(minx>p.x())
+                minx = p.x();
+            if(maxy<p.y())
+                maxy = p.y();
+            if(miny>p.y())
+                miny = p.y();
+        });
+
+        for(uint y=miny;y<=maxy;++y)
+            for(uint x=minx;x<=maxx;++x)
             {
                 QRgb color;
                 QPoint pp(x, y);

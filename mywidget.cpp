@@ -360,8 +360,23 @@ QImage* MyWidget::transform_back_bilinear() const
 
         pt.generateFromPoints(vpo, vpi);
 
-        for(uint y=0;y<h;++y)
-            for(uint x=0;x<w;++x)
+        uint minx = w, maxx = 0,
+             miny = h, maxy = 0;
+
+        std::for_each(vpo.begin(), vpo.end(),
+        [&minx, &maxx, &miny, &maxy](QPoint p){
+            if(maxx<p.x())
+                maxx = p.x();
+            if(minx>p.x())
+                minx = p.x();
+            if(maxy<p.y())
+                maxy = p.y();
+            if(miny>p.y())
+                miny = p.y();
+        });
+
+        for(uint y=miny;y<=maxy;++y)
+            for(uint x=minx;x<=maxx;++x)
             {
                 QRgb color;
                 QPoint pp(x, y);

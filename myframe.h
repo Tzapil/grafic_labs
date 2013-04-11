@@ -49,6 +49,8 @@ public:
     inline int getNumber() const {return number;}
     inline void setNumber(int n) {number = n;}
 
+    inline uint pointNumber() const {return points.size();}
+
     inline void setLowBounds(int x = 0, int y = 0) {x_low_bound = x; x_low_bound = y;}
     inline void setHiBounds(int x = 500, int y = 500) {x_hi_bound = x; y_hi_bound = y;}
 
