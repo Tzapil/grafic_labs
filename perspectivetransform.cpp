@@ -4,7 +4,7 @@ PerspectiveTransform::PerspectiveTransform():ATransform()
 {
 }
 
-QPointF PerspectiveTransform::transformPoint(const QPoint &point)
+QPointF PerspectiveTransform::transformPoint(const QPointF &point)
 {
     int x = point.x(), y = point.y();
     double d = 1.0/(x*m_13+y*m_23+1);

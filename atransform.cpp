@@ -64,28 +64,68 @@ QPointF ATransform::transformPoint(const QPointF &point)
     return QPoint((int)new_x, (int)new_y);
 }
 
-QImage* ATransform::transformImage(QImage &in_img)
+bool ATransform::transformImageDirect(const QImage &in_img, QImage &out_img, const MyFrame &frame)
 {
-    QImage *new_img = new QImage(in_img.width(),in_img.height(),QImage::Format_RGB32);
+    if(in_img.width()>out_img.width() || in_img.height()>out_img.height())
+        return false;
 
-    uint w = new_img->width(),
-         h = new_img->height();
+    auto min = frame.getMinXY(),
+         max = frame.getMaxXY();
+    uint mw = min.first,
+         mh = min.second,
+         w = max.first,
+         h = max.second;
 
-    for(uint y=0;y<h;++y)
-        for(uint x=0;x<w;++x)
+    for(uint y=mh;y<h;++y)
+        for(uint x=mw;x<w;++x)
         {
             QRgb color;
-            QPointF pp(x, y);
+            QPoint pp(x, y);
+            if(!frame.containsPoint(pp))
+                continue;
 
             QPointF rp = transformPoint(pp);
             int rx = rp.x(), ry = rp.y();
             if(rx<0 || ry<0 || rx>=w || ry>=h)
                continue;
             color = in_img.pixel(x, y);
-            new_img->setPixel(rx, ry, color);
+            out_img.setPixel(rx, ry, color);
         }
 
-    return new_img;
+    return true;
+}
+
+bool ATransform::transformImage(const QImage &in_img, QImage &out_img, const MyFrame &frame)
+{
+    uint width = in_img.width(),
+         height = in_img.height();
+
+    if(width>out_img.width() || height>out_img.height())
+        return false;
+
+    auto min = frame.getMinXY(),
+         max = frame.getMaxXY();
+    uint mw = min.first,
+         mh = min.second,
+         w = max.first,
+         h = max.second;
+
+    for(uint y=mh;y<h;++y)
+        for(uint x=mw;x<w;++x)
+        {
+            QRgb color;
+            QPoint pp(x, y);
+            if(!frame.containsPoint(pp))
+                continue;
+            QPointF rp = this->transformPoint(pp);
+            int rx = rp.x(), ry = rp.y();
+            if(rx<0 || ry<0 || rx>=width || ry>=height)
+               continue;
+            color = in_img.pixel(rx, ry);
+            out_img.setPixel(x, y, color);
+        }
+
+    return true;
 }
 
 void ATransform::drop()

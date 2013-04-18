@@ -4,7 +4,7 @@ BilineTransform::BilineTransform():ATransform()
 {
 }
 
-QPointF BilineTransform::transformPoint(const QPoint &point)
+QPointF BilineTransform::transformPoint(const QPointF &point)
 {
     double x = point.x(), y = point.y(),
            xy = x*y,

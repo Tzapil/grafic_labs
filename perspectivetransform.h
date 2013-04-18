@@ -17,7 +17,7 @@ public:
 
     void reverse();
 
-    QPointF transformPoint(const QPoint &point);
+    QPointF transformPoint(const QPointF &point);
 
     void compositeWith(const ATransform &c) ;
 

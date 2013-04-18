@@ -16,6 +16,7 @@
 
 #include "myframe.h"
 #include "atransform.h"
+#include "affinetransform.h"
 #include "perspectivetransform.h"
 #include "bilinetransform.h"
 
@@ -31,6 +32,8 @@ public:
     inline void setImage(const QImage &i) {
         if(image)
             delete image;
+        if(image_save)
+            delete image_save;
         image = new QImage(i);
         image_save = new QImage(i);
         update();
@@ -44,11 +47,9 @@ public:
 
     void transform_img();
     void transform_img_back();
-    void transform_img_back_bilinear();
 
     QImage* transform() const;
     QImage* transform_back() const;
-    QImage* transform_back_bilinear() const;
 
     ~MyWidget();
 signals:

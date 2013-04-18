@@ -15,8 +15,7 @@
 #include <stdexcept>
 #include <cmath>
 
-#include "atransform.h"
-#include "affinetransform.h"
+//#include "atransform.h"
 
 #define MIN2(a,b) (a<b?a:b)
 #define MIN4(a,b,c,d) (MIN2(MIN2(MIN2(a,b),c),d))
@@ -60,6 +59,32 @@ public:
         return polygon.containsPoint(p, Qt::WindingFill);
     }
 
+    inline std::pair<int, int> getMinXY() const {
+        int minx = x_hi_bound,
+             miny = y_hi_bound;
+
+        std::for_each(points.begin(), points.end(),
+        [&minx, &miny](std::pair<int, int> p){
+            if(minx>p.first)
+                minx = p.first;
+            if(miny>p.second)
+                miny = p.second;
+        });
+        return std::make_pair(minx, miny);
+    }
+    inline std::pair<int, int> getMaxXY() const {
+        int maxx = 0,
+            maxy = 0;
+
+        std::for_each(points.begin(), points.end(),
+        [&maxx, &maxy](std::pair<int, int> p){
+            if(maxx<p.first)
+                maxx = p.first;
+            if(maxy<p.second)
+                maxy = p.second;
+        });
+        return std::make_pair(maxx, maxy);
+    }
 //--------------------------------------------FUNCTIONAL----------------------------------
     void translate(int dx, int dy);
     bool captured(int x, int y);

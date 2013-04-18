@@ -9,6 +9,8 @@
 #include <tuple>
 #include <vector>
 
+#include "myframe.h"
+
 class ATransform
 {
 public:
@@ -25,7 +27,8 @@ public:
 
     virtual void compositeWith(const ATransform &c) ;
 
-    virtual QImage* transformImage(QImage &in_img);
+    virtual bool transformImage(const QImage &in_img, QImage &out_img, const MyFrame &frame);
+    virtual bool transformImageDirect(const QImage &in_img, QImage &out_img, const MyFrame &frame);
     virtual QPointF transformPoint(const QPointF &point);
 
     virtual void generateFromPoints(std::vector<QPoint> in_points, std::vector<QPoint> out_points) = 0;

@@ -6,11 +6,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(BTN_SIZE,300);
 
     in_img = new MyWidget(this);
-    //in_img->addFrame();
-    in_img->setNet(3, 3);
+    in_img->setNet(6, 6);
 
     out_img = new MyWidget(this);
-    //out_img->addFrame();
     out_img->setNet(3, 3);
 
     load_btn = new QPushButton(tr("Load img"), this);
